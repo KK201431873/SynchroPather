@@ -15,14 +15,19 @@ import javax.swing.JComponent;
 class RobotImage extends JComponent {
 	
 	public double x, y, heading;
-	private static double[] WORLD_ORIGIN = new double[] {384,384};
-	private static double PIXEL_PER_INCH = 5.33333;
+	private SplineImage splineImage;
+	private static double[] WORLD_ORIGIN = CanvasConstants.WORLD_ORIGIN;
+	private static double PIXEL_PER_INCH = CanvasConstants.PIXEL_PER_INCH;
 	private final static double WIDTH = 17 * PIXEL_PER_INCH, HEIGHT = 14.5 * PIXEL_PER_INCH;
 	
 	public RobotImage() {
 		x = 0;
 		y = 0;
 		heading = 0;
+	}
+	
+	public void setSplineImage(SplineImage splineImage) {
+		this.splineImage = splineImage;
 	}
 	
 	public void setPose(Pose pose) {
@@ -76,13 +81,6 @@ class RobotImage extends JComponent {
 			corners[i][0] = rx+WORLD_ORIGIN[0];
 			corners[i][1] = ry+WORLD_ORIGIN[1];
 		}
-		
-
-        Line2D side0 = new Line2D.Double(corners[0][0], corners[0][1], corners[1][0], corners[1][1]);
-        Line2D side1 = new Line2D.Double(corners[1][0], corners[1][1], corners[2][0], corners[2][1]);
-        Line2D side2 = new Line2D.Double(corners[2][0], corners[2][1], corners[3][0], corners[3][1]);
-        Line2D side3 = new Line2D.Double(corners[3][0], corners[3][1], corners[0][0], corners[0][1]);
-        Line2D headingLine = new Line2D.Double(renderX+WORLD_ORIGIN[0], renderY+WORLD_ORIGIN[1], corners[4][0], corners[4][1]);
 
         BufferedImage bg = null;
 		try {
@@ -92,7 +90,13 @@ class RobotImage extends JComponent {
 		}
         
         g2.drawImage(bg, 0, 0, 768, 768, null);
-
+        
+        
+        // draw spline path here
+        splineImage.paint(g);
+        
+        
+        // draw robot here
 		Path2D.Double path = new Path2D.Double();
 		path.moveTo(corners[0][0], corners[0][1]);
 		path.lineTo(corners[1][0], corners[1][1]);
@@ -103,6 +107,12 @@ class RobotImage extends JComponent {
 		g2.setColor(new Color(68, 142, 228, 144));
 		g2.fill(path);
 
+        Line2D side0 = new Line2D.Double(corners[0][0], corners[0][1], corners[1][0], corners[1][1]);
+        Line2D side1 = new Line2D.Double(corners[1][0], corners[1][1], corners[2][0], corners[2][1]);
+        Line2D side2 = new Line2D.Double(corners[2][0], corners[2][1], corners[3][0], corners[3][1]);
+        Line2D side3 = new Line2D.Double(corners[3][0], corners[3][1], corners[0][0], corners[0][1]);
+        Line2D headingLine = new Line2D.Double(renderX+WORLD_ORIGIN[0], renderY+WORLD_ORIGIN[1], corners[4][0], corners[4][1]);
+
 		g2.setColor(new Color(0, 0, 0));
         g2.setStroke(new BasicStroke(5));
 		g2.setColor(new Color(68, 142, 228));
@@ -112,6 +122,7 @@ class RobotImage extends JComponent {
         g2.draw(side3);
 		g2.setColor(new Color(8, 82, 168));
         g2.draw(headingLine);
+        
     }
 
 	private double[] rotateBy(double[] xy, double theta) {

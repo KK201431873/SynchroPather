@@ -14,6 +14,10 @@ public class CRSpline {
 	}
 	
 	// primary methods
+
+	public double getLength() {
+		return poses.size();
+	}
 	
 	public double getDistance() {
 		return distance;
@@ -61,15 +65,10 @@ public class CRSpline {
 	}
 	
 	public Pose getPose(double elapsedTime) {
-		elapsedTime = bound(elapsedTime, 0, time);
-		
 		double dx = getDisplacement(elapsedTime);
-		double p_x = dx / distance;
+		int n = getSegment(elapsedTime);
 		
-		int n = 0;
-		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
-
-		double delta_t = 0.01;
+		double delta_t = DriveConstants.delta_t;
 		double p_r = 0;
 		double localDisplacement = 0;
 		Pose lastPose = getPose(n,0);
@@ -83,11 +82,22 @@ public class CRSpline {
 		return lastPose;
 	}
 	
-	public double getDisplacement(double elapsedTime) {
-		if (elapsedTime < 0 || time < elapsedTime)
-			throw new RuntimeException(String.format("Elapsed time %s outside of [%s,%s]", elapsedTime, 0, time));
+	public int getSegment(double elapsedTime) {
+		elapsedTime = bound(elapsedTime, 0, time);
 		
-		double MV = DriveCoefficients.MAX_VELOCITY, MA = DriveCoefficients.MAX_ACCELERATION;
+		double dx = getDisplacement(elapsedTime);
+		double p_x = dx / distance;
+		
+		int n = 0;
+		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
+		
+		return n;
+	}
+	
+	public double getDisplacement(double elapsedTime) {
+		elapsedTime = bound(elapsedTime, 0, time);
+		
+		double MV = DriveConstants.MAX_VELOCITY, MA = DriveConstants.MAX_ACCELERATION;
 		double t_n = time - elapsedTime, t_a = MV/MA;
 		if (time <= 2*t_a) {
 			// triangle graph
@@ -121,7 +131,7 @@ public class CRSpline {
 		pi = new double[Math.max(0, poses.size()-1)];
 
 		distance = 0;
-		double delta_t = 0.01;
+		double delta_t = DriveConstants.delta_t;
 		double x = poses.get(0).getX();
 		double y = poses.get(0).getY();
 		for (int i = 0; i < poses.size()-1; i++) {
@@ -144,7 +154,7 @@ public class CRSpline {
 			partialSum += l[i];
 		}
 		
-		double MV = DriveCoefficients.MAX_VELOCITY, MA = DriveCoefficients.MAX_ACCELERATION;
+		double MV = DriveConstants.MAX_VELOCITY, MA = DriveConstants.MAX_ACCELERATION;
 		double d_a = 0.5 * MV*MV / MA;
 		if (distance / 2 <= d_a) {
 			// triangle graph

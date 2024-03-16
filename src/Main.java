@@ -1,26 +1,21 @@
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class Main {
+	
+	public static CRSpline spline;
+	public static double elapsedTime;
 
 	public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("Spline Sim");
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.setResizable(false);
         frame.setIconImage(new ImageIcon("./src/DRIVE.png").getImage());
-        
-        JLabel bg = new JLabel(new ImageIcon("./src/centerstage_field.png"));
-        frame.getContentPane().add(bg);
-        
-        RobotImage robot = new RobotImage();
-        frame.getContentPane().add(robot);
-        
-        frame.setVisible(true);
+//        frame.setLayout(new FlowLayout());
 
-		CRSpline spline = new CRSplineBuilder(-40.75,63.5,-90)
+		spline = new CRSplineBuilder(-40.75,63.5,-90)
 				.addPose(-40.75,38,0)
 				.addPose(43,36,0)
 				.addPose(0,12,-180)
@@ -37,9 +32,18 @@ public class Main {
 
 		System.out.println(spline.getTime());
 		
+		JPanel pane = new JPanel();
+		
+        RobotImage robotImage = new RobotImage();
+        SplineImage splineImage = new SplineImage(spline);
+        robotImage.setSplineImage(splineImage);
+        frame.add(robotImage);
+        
+//		frame.add(pane);
+        
+        frame.setVisible(true);
 		
 		double startTime = System.currentTimeMillis() / 1000.0;
-		double elapsedTime;
 		while (true) {
 			double currentTime = System.currentTimeMillis() / 1000.0;
 			elapsedTime = currentTime - startTime;
@@ -51,7 +55,7 @@ public class Main {
 			
 			Pose currentPose = spline.getPose(elapsedTime);
 			
-			robot.setPose(currentPose);
+			robotImage.setPose(currentPose);
 
 	        frame.repaint();
 		}
