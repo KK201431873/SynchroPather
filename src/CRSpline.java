@@ -28,14 +28,14 @@ public class CRSpline {
 	}
 	
 	public Pose getPose(int index) {
-		if (index < 0 || poses.size() <= index)
-			throw new RuntimeException("Invalid pose index "+index);
+		if (index < 0 || poses.size()-1 < index)
+			throw new RuntimeException(String.format("Index %s outside of [%s,%s]", index, 0, poses.size()-1));
 		return poses.get(index);
 	}
 	
 	public Pose getPose(int segment, double t) {
-		if (segment < 0 || poses.size()-1 <= segment)
-			throw new RuntimeException("Invalid segment index "+segment);
+		if (segment < 0 || poses.size()-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.size()-2));
 
 		Pose p0 = poses.get(Math.max(0, segment-1));
 		Pose p1 = poses.get(segment);
@@ -61,9 +61,10 @@ public class CRSpline {
 	}
 	
 	public Pose getPose(double elapsedTime) {
+		elapsedTime = bound(elapsedTime, 0, time);
+		
 		double dx = getDisplacement(elapsedTime);
 		double p_x = dx / distance;
-//		System.out.println(p_x);
 		
 		int n = 0;
 		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
@@ -83,6 +84,9 @@ public class CRSpline {
 	}
 	
 	public double getDisplacement(double elapsedTime) {
+		if (elapsedTime < 0 || time < elapsedTime)
+			throw new RuntimeException(String.format("Elapsed time %s outside of [%s,%s]", elapsedTime, 0, time));
+		
 		double MV = DriveCoefficients.MAX_VELOCITY, MA = DriveCoefficients.MAX_ACCELERATION;
 		double t_n = time - elapsedTime, t_a = MV/MA;
 		if (time <= 2*t_a) {
@@ -107,7 +111,7 @@ public class CRSpline {
 		return res + "]";
 	}
 	
-	private double bound(double x, double lower, double upper) {
+	private static double bound(double x, double lower, double upper) {
 		return Math.max(lower, Math.min(upper, x));
 	}
 	
@@ -140,8 +144,6 @@ public class CRSpline {
 			partialSum += l[i];
 		}
 		
-//		System.out.println(distance);
-		
 		double MV = DriveCoefficients.MAX_VELOCITY, MA = DriveCoefficients.MAX_ACCELERATION;
 		double d_a = 0.5 * MV*MV / MA;
 		if (distance / 2 <= d_a) {
@@ -151,8 +153,6 @@ public class CRSpline {
 			// trapezoid graph
 			time = distance/MV + MV/MA;
 		}
-		
-//		System.out.println(time);
 		
 	}
 
