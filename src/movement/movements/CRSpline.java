@@ -1,8 +1,13 @@
+package movement.movements;
 import java.util.ArrayList;
 
-public class CRSpline {
+import teamcode_util.DriveConstants;
+import util.Movement;
+import util.MovementType;
+import util.Pose;
 
-	public MovementType MOVEMENT_TYPE;
+public class CRSpline extends Movement {
+
 	private double distance, time;
 	private double[] l, p, pi;
 	private ArrayList<Pose> poses = new ArrayList<>();
@@ -10,7 +15,7 @@ public class CRSpline {
 	public CRSpline(ArrayList<Pose> poses) {
 		this.MOVEMENT_TYPE = MovementType.DRIVE;
 		this.poses = poses;
-		updateDistances();
+		updateValues();
 	}
 	
 	// primary methods
@@ -125,7 +130,7 @@ public class CRSpline {
 		return Math.max(lower, Math.min(upper, x));
 	}
 	
-	private void updateDistances() {
+	private void updateValues() {
 		l = new double[Math.max(0, poses.size()-1)];
 		p = new double[Math.max(0, poses.size()-1)];
 		pi = new double[Math.max(0, poses.size()-1)];

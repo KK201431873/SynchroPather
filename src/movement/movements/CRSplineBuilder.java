@@ -1,6 +1,10 @@
+package movement.movements;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import util.MovementType;
+import util.Pose;
 
 public class CRSplineBuilder {
 

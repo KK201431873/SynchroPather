@@ -1,3 +1,5 @@
+package graphics;
+
 
 public class CanvasConstants {
 	

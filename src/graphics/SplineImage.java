@@ -1,3 +1,5 @@
+package graphics;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,10 +8,15 @@ import java.awt.Polygon;
 
 import javax.swing.JComponent;
 
+import movement.movements.CRSpline;
+import teamcode_util.DriveConstants;
+import util.Pose;
+
 @SuppressWarnings("serial")
-class SplineImage extends JComponent {
+public class SplineImage extends JComponent {
 	
-	public CRSpline spline;
+	private CRSpline spline;
+	private double elapsedTime;
 	private static double[] WORLD_ORIGIN = CanvasConstants.WORLD_ORIGIN;
 	private static double PIXEL_PER_INCH = CanvasConstants.PIXEL_PER_INCH;
 	
@@ -19,6 +26,10 @@ class SplineImage extends JComponent {
 	
 	public void setSpline(CRSpline spline) {
 		this.spline = spline;
+	}
+	
+	public void setElapsedTime(double elapsedTime) {
+		this.elapsedTime = elapsedTime;
 	}
 		  
     public void paint(Graphics g)
@@ -31,8 +42,8 @@ class SplineImage extends JComponent {
 			
 			int polyLength = (int) Math.ceil(1/DriveConstants.delta_t);
 			
-			int[] xPoly = new int[polyLength * 2];
-			int[] yPoly = new int[polyLength * 2];
+			int[] xPoly = new int[polyLength*2];
+			int[] yPoly = new int[polyLength*2];
 			
 	        Pose pose = spline.getPose(segment, 0);
 	        int i = 0;
@@ -48,13 +59,13 @@ class SplineImage extends JComponent {
 	        }
 	        
 	        for (int j = 0; j < polyLength; j++) {
-	        	xPoly[2*polyLength-1-j] = xPoly[j];
-	        	yPoly[2*polyLength-1-j] = yPoly[j];
+	        	xPoly[2*polyLength-j-1] = xPoly[j];
+	        	yPoly[2*polyLength-j-1] = yPoly[j];
 	        }
 	
 			Polygon poly = new Polygon(xPoly, yPoly, xPoly.length);
 
-	        if (Main.spline.getSegment(Main.elapsedTime) == segment) {
+	        if (spline.getSegment(elapsedTime) == segment) {
 	            g2.setStroke(new BasicStroke(12));
 	        	g2.setColor(new Color(34, 187, 14, 100));
 				g2.drawPolygon(poly);

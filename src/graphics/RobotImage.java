@@ -1,3 +1,5 @@
+package graphics;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,8 +13,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
+import util.Pose;
+
 @SuppressWarnings("serial")
-class RobotImage extends JComponent {
+public class RobotImage extends JComponent {
 	
 	public double x, y, heading;
 	private SplineImage splineImage;
@@ -30,10 +34,11 @@ class RobotImage extends JComponent {
 		this.splineImage = splineImage;
 	}
 	
-	public void setPose(Pose pose) {
+	public void setPose(Pose pose, double elapsedTime) {
 		this.x = pose.getX();
 		this.y = pose.getY();
 		this.heading = pose.getHeading();
+		splineImage.setElapsedTime(elapsedTime);
 	}
 	
 	public void setX(double x) {
@@ -123,14 +128,6 @@ class RobotImage extends JComponent {
 		g2.setColor(new Color(8, 82, 168));
         g2.draw(headingLine);
         
-    }
-
-	private double[] rotateBy(double[] xy, double theta) {
-    	double x = xy[0], y = xy[1];
-    	return new double[] {
-            	x*Math.cos(theta) - y*Math.sin(theta), 
-            	x*Math.sin(theta) + y*Math.cos(theta)
-    	};
     }
     
 }

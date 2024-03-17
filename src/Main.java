@@ -1,7 +1,12 @@
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+
+import graphics.RobotImage;
+import graphics.SplineImage;
+import movement.movements.CRSpline;
+import movement.movements.CRSplineBuilder;
+import util.Pose;
 
 public class Main {
 	
@@ -13,7 +18,6 @@ public class Main {
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setIconImage(new ImageIcon("./src/DRIVE.png").getImage());
-//        frame.setLayout(new FlowLayout());
 
 		spline = new CRSplineBuilder(-40.75,63.5,-90)
 				.addPose(-40.75,38,0)
@@ -30,16 +34,13 @@ public class Main {
 				.addPose(43,36,0)
 				.build();
 
-		System.out.println(spline.getTime());
+		System.out.println(spline.getTime()); 
 		
-		JPanel pane = new JPanel();
 		
         RobotImage robotImage = new RobotImage();
         SplineImage splineImage = new SplineImage(spline);
         robotImage.setSplineImage(splineImage);
         frame.add(robotImage);
-        
-//		frame.add(pane);
         
         frame.setVisible(true);
 		
@@ -55,7 +56,7 @@ public class Main {
 			
 			Pose currentPose = spline.getPose(elapsedTime);
 			
-			robotImage.setPose(currentPose);
+			robotImage.setPose(currentPose, elapsedTime);
 
 	        frame.repaint();
 		}
