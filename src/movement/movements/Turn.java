@@ -23,7 +23,7 @@ public class Turn extends Movement {
 
 	@Override
 	public Pose getPose(double elapsedTime) {
-		double t = calculator.getDisplacement(elapsedTime) / distance;
+		double t = distance!=0 ? calculator.getDisplacement(elapsedTime) / distance : 0;
 
 		double q0 = 1 - t;
 		double q1 = t;
@@ -36,6 +36,11 @@ public class Turn extends Movement {
 	@Override
 	public double getTime() {
 		return time;
+	}
+	
+	@Override
+	public Pose getStartPose() {
+		return startPose;
 	}
 
 	@Override

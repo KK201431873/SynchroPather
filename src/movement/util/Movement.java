@@ -8,6 +8,8 @@ public abstract class Movement {
 
 	public abstract double getTime();
 	
+	public abstract Pose getStartPose();
+	
 	public abstract Pose getEndPose();
 
 }

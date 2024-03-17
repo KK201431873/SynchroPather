@@ -38,10 +38,15 @@ public class CRSpline extends Movement {
 	public ArrayList<Pose> getPoses() {
 		return poses;
 	}
+	
+	@Override
+	public Pose getStartPose() {
+		return poses.size()>0 ? poses.get(0) : null;
+	}
 
 	@Override
 	public Pose getEndPose() {
-		return poses.get(poses.size()-1);
+		return poses.size()>0 ? poses.get(poses.size()-1) : null;
 	}
 	
 	public Pose getPose(int index) {
@@ -100,7 +105,7 @@ public class CRSpline extends Movement {
 		elapsedTime = bound(elapsedTime, 0, time);
 		
 		double dx = calculator.getDisplacement(elapsedTime);
-		double p_x = dx / distance;
+		double p_x = distance!=0 ? dx / distance : 0;
 		
 		int n = 0;
 		while (n+1 < pi.length && p_x >= pi[n+1]) n++;

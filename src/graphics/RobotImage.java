@@ -117,7 +117,7 @@ public class RobotImage extends JComponent {
         Line2D side2 = new Line2D.Double(corners[2][0], corners[2][1], corners[3][0], corners[3][1]);
         Line2D side3 = new Line2D.Double(corners[3][0], corners[3][1], corners[0][0], corners[0][1]);
         Line2D headingLine = new Line2D.Double(renderX+WORLD_ORIGIN[0], renderY+WORLD_ORIGIN[1], corners[4][0], corners[4][1]);
-
+		
 		g2.setColor(new Color(0, 0, 0));
         g2.setStroke(new BasicStroke(5));
 		g2.setColor(new Color(68, 142, 228));

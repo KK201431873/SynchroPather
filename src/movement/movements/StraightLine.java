@@ -20,7 +20,7 @@ public class StraightLine extends Movement{
 
 	@Override
 	public Pose getPose(double elapsedTime) {
-		double t = calculator.getDisplacement(elapsedTime) / distance;
+		double t = distance!=0 ? calculator.getDisplacement(elapsedTime) / distance : 0;
 
 		double q0 = 1 - t;
 		double q1 = t;
@@ -53,7 +53,7 @@ public class StraightLine extends Movement{
 		
 		time = calculator.getTime();
 		
-		turn = new Turn(startPose, endPose.getHeading()-startPose.getHeading());
+		turn = new Turn(startPose, startPose.getHeading()-endPose.getHeading());
 		
 	}
 

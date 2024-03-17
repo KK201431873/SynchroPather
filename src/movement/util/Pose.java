@@ -24,6 +24,12 @@ public class Pose {
 		return heading;
 	}
 	
+	public boolean isEqualTo(Pose comparison) {
+		return x==comparison.getX() &&
+				y==comparison.getY() &&
+				heading==comparison.getHeading();
+	}
+	
 	public Pose plus(Pose addend) {
 	    return new Pose(x + addend.x, y + addend.y, heading + addend.heading);
 	}
