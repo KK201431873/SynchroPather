@@ -1,4 +1,4 @@
-package util;
+package movement.util;
 
 public class Pose {
 	
@@ -33,16 +33,16 @@ public class Pose {
 	}
 	
 	/**
-	 * Normalizes a given angle to [-180,180) degrees.
-	 * @param degrees the given angle in degrees.
-	 * @return the normalized angle in degrees.
+	 * Normalizes a given angle to [-pi,pi) radians.
+	 * @param degrees the given angle in radians.
+	 * @return the normalized angle in radians.
 	 */
 	private double normalizeAngle(double degrees) {
 	    double angle = degrees;
-	    while (angle <= -180) //TODO: opMode.opModeIsActive() && 
-	        angle += 360;
-	    while (angle > 180)
-	        angle -= 360;
+	    while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+	        angle += 2*Math.PI;
+	    while (angle > Math.PI)
+	        angle -= 2*Math.PI;
 	    return angle;
 	}
 

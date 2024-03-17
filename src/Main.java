@@ -2,16 +2,15 @@
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
+import graphics.MovementSequenceImage;
 import graphics.RobotImage;
-import graphics.SplineImage;
+import movement.MovementSequence;
+import movement.MovementSequenceBuilder;
 import movement.movements.CRSpline;
 import movement.movements.CRSplineBuilder;
-import util.Pose;
+import movement.util.Pose;
 
 public class Main {
-	
-	public static CRSpline spline;
-	public static double elapsedTime;
 
 	public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("Spline Sim");
@@ -19,42 +18,66 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setIconImage(new ImageIcon("./src/DRIVE.png").getImage());
 
-		spline = new CRSplineBuilder(-40.75,63.5,-90)
+        CRSpline spline1 = new CRSplineBuilder(-40.75,63.5,-90)
 				.addPose(-40.75,38,0)
 				.addPose(43,36,0)
+				.build();
+
+        CRSpline spline2 = new CRSplineBuilder(43,36,0)
 				.addPose(0,12,-180)
 				.addPose(-56,12,-180)
+				.build();
+
+        CRSpline spline3 = new CRSplineBuilder(-56,12,-180)
 				.addPose(12,12,0)
 				.addPose(43,36,0)
+				.build();
+
+        CRSpline spline4 = new CRSplineBuilder(43,36,0)
 				.addPose(0,12,-180)
 				.addPose(-36,12,-180)
 				.addPose(-56,24,-180)
+				.build();
+
+        CRSpline spline5 = new CRSplineBuilder(-56,24,-180)
 				.addPose(-36,12,-180)
 				.addPose(0,12,-180)
 				.addPose(43,36,0)
 				.build();
 
-		System.out.println(spline.getTime()); 
+		MovementSequence seq = new MovementSequenceBuilder(-40.75,63.5,-90)
+				.addCRSpline(spline1)
+				.addCRSpline(spline2)
+				.addCRSpline(spline3)
+				.addCRSpline(spline4)
+				.addCRSpline(spline5)
+				.right(20)
+				.turnRight(135)
+				.forward(10)
+				.build();
+		
+		System.out.println(seq.getTime()); 
 		
 		
         RobotImage robotImage = new RobotImage();
-        SplineImage splineImage = new SplineImage(spline);
+        MovementSequenceImage splineImage = new MovementSequenceImage(seq);
         robotImage.setSplineImage(splineImage);
         frame.add(robotImage);
         
         frame.setVisible(true);
 		
 		double startTime = System.currentTimeMillis() / 1000.0;
+		double elapsedTime;
 		while (true) {
 			double currentTime = System.currentTimeMillis() / 1000.0;
 			elapsedTime = currentTime - startTime;
 			
-			if (elapsedTime > spline.getTime())
+			if (elapsedTime > seq.getTime())
 				startTime = currentTime;
 			
 //			System.out.println(elapsedTime);
 			
-			Pose currentPose = spline.getPose(elapsedTime);
+			Pose currentPose = seq.getPose(elapsedTime);
 			
 			robotImage.setPose(currentPose, elapsedTime);
 

@@ -1,8 +1,8 @@
 package movement;
 import java.util.ArrayList;
 
-import util.Movement;
-import util.Pose;
+import movement.util.Movement;
+import movement.util.Pose;
 
 public class MovementSequence {
 	
@@ -11,9 +11,13 @@ public class MovementSequence {
 	private double time;
 	private double[] times, partialTimes;
 	
-	public MovementSequence(ArrayList<Movement> movements) {
-		this.movements = movements;
-		updateValues();
+	public MovementSequence(MovementSequenceBuilder builder) {
+		this.movements = builder.getMovements();
+		init();
+	}
+	
+	public int getLength() {
+		return length;
 	}
 	
 	public double getTime() {
@@ -21,32 +25,39 @@ public class MovementSequence {
 	}
 	
 	public Pose getPose(double elapsedTime) {
-		int n = getIndex(elapsedTime);
-		
-		return movements.get(n).getPose(elapsedTime - partialTimes[n]);
+		int n = getLocalMovementIndex(elapsedTime);
+		return movements.get(n).getPose(getLocalElapsedTime(elapsedTime));
+	}
+	
+	public Movement getMovement(int index) {
+		return movements.get(index);
 	}
 	
 	public Movement getMovement(double elapsedTime) {
-		return movements.get(getIndex(elapsedTime));
+		return movements.get(getLocalMovementIndex(elapsedTime));
 	}
 	
-	private int getIndex(double elapsedTime) {
+	public double getLocalElapsedTime(double elapsedTime) {
+		int n = getLocalMovementIndex(elapsedTime);
+		return elapsedTime - partialTimes[n];
+	}
+	
+	public int getLocalMovementIndex(double elapsedTime) {
 		int n = 0;
 		while (n+1 < partialTimes.length && elapsedTime >= partialTimes[n+1]) n++;
-		
 		return n;
 	}
 	
-	private void updateValues() {
+	private void init() {
 		length = movements.size();
 		
 		times = new double[length];
-		partialTimes = new double[Math.max(0, length-1)];
+		partialTimes = new double[length];
 		time = 0;
 		for (int i = 0; i < length; i++) {
 			double movementTime = movements.get(i).getTime();
 			times[i] = movementTime;
-			if (i < length-1)
+			if (i < length)
 				partialTimes[i] = time;
 			time += movementTime;
 		}

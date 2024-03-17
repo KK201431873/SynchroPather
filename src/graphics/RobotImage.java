@@ -13,13 +13,13 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
-import util.Pose;
+import movement.util.Pose;
 
 @SuppressWarnings("serial")
 public class RobotImage extends JComponent {
 	
 	public double x, y, heading;
-	private SplineImage splineImage;
+	private MovementSequenceImage movementSequenceImage;
 	private static double[] WORLD_ORIGIN = CanvasConstants.WORLD_ORIGIN;
 	private static double PIXEL_PER_INCH = CanvasConstants.PIXEL_PER_INCH;
 	private final static double WIDTH = 17 * PIXEL_PER_INCH, HEIGHT = 14.5 * PIXEL_PER_INCH;
@@ -30,15 +30,15 @@ public class RobotImage extends JComponent {
 		heading = 0;
 	}
 	
-	public void setSplineImage(SplineImage splineImage) {
-		this.splineImage = splineImage;
+	public void setSplineImage(MovementSequenceImage movementSequenceImage) {
+		this.movementSequenceImage = movementSequenceImage;
 	}
 	
 	public void setPose(Pose pose, double elapsedTime) {
 		this.x = pose.getX();
 		this.y = pose.getY();
 		this.heading = pose.getHeading();
-		splineImage.setElapsedTime(elapsedTime);
+		movementSequenceImage.setElapsedTime(elapsedTime);
 	}
 	
 	public void setX(double x) {
@@ -97,8 +97,8 @@ public class RobotImage extends JComponent {
         g2.drawImage(bg, 0, 0, 768, 768, null);
         
         
-        // draw spline path here
-        splineImage.paint(g);
+        // draw path here
+        movementSequenceImage.paint(g);
         
         
         // draw robot here

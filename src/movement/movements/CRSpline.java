@@ -1,21 +1,23 @@
 package movement.movements;
 import java.util.ArrayList;
 
+import movement.util.DisplacementCalculator;
+import movement.util.Movement;
+import movement.util.MovementType;
+import movement.util.Pose;
 import teamcode_util.DriveConstants;
-import util.Movement;
-import util.MovementType;
-import util.Pose;
 
 public class CRSpline extends Movement {
 
 	private double distance, time;
 	private double[] l, p, pi;
 	private ArrayList<Pose> poses = new ArrayList<>();
+	private DisplacementCalculator calculator;
 
 	public CRSpline(ArrayList<Pose> poses) {
 		this.MOVEMENT_TYPE = MovementType.DRIVE;
 		this.poses = poses;
-		updateValues();
+		init();
 	}
 	
 	// primary methods
@@ -27,13 +29,19 @@ public class CRSpline extends Movement {
 	public double getDistance() {
 		return distance;
 	}
-	
+
+	@Override
 	public double getTime() {
 		return time;
 	}
 	
 	public ArrayList<Pose> getPoses() {
 		return poses;
+	}
+
+	@Override
+	public Pose getEndPose() {
+		return poses.get(poses.size()-1);
 	}
 	
 	public Pose getPose(int index) {
@@ -68,9 +76,10 @@ public class CRSpline extends Movement {
 		
 		return new Pose(tx, ty, theading);
 	}
-	
+
+	@Override
 	public Pose getPose(double elapsedTime) {
-		double dx = getDisplacement(elapsedTime);
+		double dx = calculator.getDisplacement(elapsedTime);
 		int n = getSegment(elapsedTime);
 		
 		double delta_t = DriveConstants.delta_t;
@@ -90,33 +99,13 @@ public class CRSpline extends Movement {
 	public int getSegment(double elapsedTime) {
 		elapsedTime = bound(elapsedTime, 0, time);
 		
-		double dx = getDisplacement(elapsedTime);
+		double dx = calculator.getDisplacement(elapsedTime);
 		double p_x = dx / distance;
 		
 		int n = 0;
 		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
 		
 		return n;
-	}
-	
-	public double getDisplacement(double elapsedTime) {
-		elapsedTime = bound(elapsedTime, 0, time);
-		
-		double MV = DriveConstants.MAX_VELOCITY, MA = DriveConstants.MAX_ACCELERATION;
-		double t_n = time - elapsedTime, t_a = MV/MA;
-		if (time <= 2*t_a) {
-			// triangle graph
-			if (elapsedTime <= time/2)
-				return 0.5*MA*elapsedTime*elapsedTime;
-			else
-				return distance - 0.5*MA*t_n*t_n;
-		} else {
-			// trapezoid graph
-			if (elapsedTime <= time/2)
-				return 0.5*(elapsedTime + Math.max(0, elapsedTime - t_a))* Math.min(MV, MA*elapsedTime);
-			else
-				return distance - 0.5*(t_n + Math.max(0, t_n - t_a))* Math.min(MV, MA*t_n);
-		}
 	}
 	
 	public String toString() {
@@ -130,7 +119,7 @@ public class CRSpline extends Movement {
 		return Math.max(lower, Math.min(upper, x));
 	}
 	
-	private void updateValues() {
+	private void init() {
 		l = new double[Math.max(0, poses.size()-1)];
 		p = new double[Math.max(0, poses.size()-1)];
 		pi = new double[Math.max(0, poses.size()-1)];
@@ -158,16 +147,10 @@ public class CRSpline extends Movement {
 			p[i] = l[i] / distance;
 			partialSum += l[i];
 		}
+
+		calculator = new DisplacementCalculator(distance, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
 		
-		double MV = DriveConstants.MAX_VELOCITY, MA = DriveConstants.MAX_ACCELERATION;
-		double d_a = 0.5 * MV*MV / MA;
-		if (distance / 2 <= d_a) {
-			// triangle graph
-			time = 2*Math.sqrt(distance/MA);
-		} else {
-			// trapezoid graph
-			time = distance/MV + MV/MA;
-		}
+		time = calculator.getTime();
 		
 	}
 

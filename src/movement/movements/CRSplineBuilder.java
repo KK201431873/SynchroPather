@@ -3,8 +3,8 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import util.MovementType;
-import util.Pose;
+import movement.util.MovementType;
+import movement.util.Pose;
 
 public class CRSplineBuilder {
 

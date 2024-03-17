@@ -1,4 +1,4 @@
-package util;
+package movement.util;
 
 public enum MovementType {
 		DRIVE(),
