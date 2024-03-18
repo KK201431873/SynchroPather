@@ -58,9 +58,16 @@ public class Main {
 		
 		MovementVisualizer visualizer1 = new MovementVisualizer(seq1);
 		visualizer1.start();
+		while (visualizer1.loop()) {
+			Thread.sleep(10);
+//			visualizer1.stop();
+		}
 
 		MovementVisualizer visualizer2 = new MovementVisualizer(seq2);
 		visualizer2.start();
+		while (visualizer2.loop()) {
+			visualizer2.stop();
+		}
 
 	}
 	
