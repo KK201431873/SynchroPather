@@ -29,6 +29,11 @@ public class MovementSequence {
 		return movements.get(n).getPose(getLocalElapsedTime(elapsedTime));
 	}
 	
+	public Pose getVelocityPose(double elapsedTime) {
+		int n = getLocalMovementIndex(elapsedTime);
+		return movements.get(n).getVelocityPose(getLocalElapsedTime(elapsedTime));
+	}
+	
 	public Movement getMovement(int index) {
 		return movements.get(index);
 	}

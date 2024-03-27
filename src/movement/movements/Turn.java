@@ -32,6 +32,11 @@ public class Turn extends Movement {
 
 		return new Pose(endPose.getX(), endPose.getY(), theading);
 	}
+	
+	@Override
+	public Pose getVelocityPose(double elapsedTime) {
+		return new Pose(0, 0, calculator.getVelocity(elapsedTime));
+	}
 
 	@Override
 	public double getTime() {
@@ -49,12 +54,26 @@ public class Turn extends Movement {
 	}
 	
 	private void init() {
-		distance = Math.abs(endPose.getHeading() - startPose.getHeading());
+		distance = normalizeAngle(endPose.getHeading() - startPose.getHeading());
 
 		calculator = new DisplacementCalculator(distance, DriveConstants.MAX_ANGULAR_VELOCITY, DriveConstants.MAX_ANGULAR_ACCELERATION);
 		
 		time = calculator.getTime();
 		
 	}
+
+    /**
+     * Normalizes a given angle to [-180,180) degrees.
+     * @param degrees the given angle in degrees.
+     * @return the normalized angle in degrees.
+     */
+    private double normalizeAngle(double degrees) {
+        double angle = degrees;
+        while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+            angle += 2*Math.PI;
+        while (angle > Math.PI) //TODO: opMode.opModeIsActive() && 
+            angle -= 2*Math.PI;
+        return angle;
+    }
 
 }

@@ -75,7 +75,7 @@ public class MovementSequenceImage extends JComponent {
 			
 					Polygon poly = new Polygon(xPoly, yPoly, xPoly.length);
 		
-			        if (spline.getSegment(localElapsedTime) == segment && isRunning) {
+			        if (spline.getLocalSegment(localElapsedTime) == segment && isRunning) {
 			            g2.setStroke(new BasicStroke(12));
 			        	g2.setColor(new Color(34, 187, 14, 100));
 						g2.drawPolygon(poly);

@@ -4,6 +4,7 @@ import movement.MovementSequence;
 import movement.MovementSequenceBuilder;
 import movement.movements.CRSpline;
 import movement.movements.CRSplineBuilder;
+import movement.util.Pose;
 
 public class Main {
 
@@ -54,13 +55,58 @@ public class Main {
 				.forward(20)
 				.goStraightTo(-40,0,-180)
 				.backward(50)
+				.goStraightTo(0,0,0)
 				.build();
 		
-		MovementVisualizer visualizer1 = new MovementVisualizer(seq1);
+		MovementSequence seq3 = new MovementSequenceBuilder(0,0,0)
+				.forward(30)
+				.turnRight(179)
+				.turnRight(2)
+				.turnRight(179)
+				.backward(30)
+				.build();
+		
+		MovementVisualizer visualizer1 = new MovementVisualizer(seq3);
+		
+
+		// testing bounded displacement calculator
+//		double MV = DriveConstants.MAX_VELOCITY, MA = DriveConstants.MAX_ACCELERATION;
+//		BoundedDisplacementCalculator boundedCalculator = new BoundedDisplacementCalculator(-33,9, MV, MA);
+//
+//		System.out.println(boundedCalculator.getDistance());
+//		System.out.println(boundedCalculator.getTime());
+//		System.out.println(boundedCalculator.getMV());
+//		System.out.println(boundedCalculator.getMA());
+//		
+//		double startTime = System.currentTimeMillis() / 1000.0;
+//		double elapsedTime = 0;
+//		
+//		while (elapsedTime <= boundedCalculator.getTime()) {
+//			elapsedTime = System.currentTimeMillis() / 1000.0 - startTime;
+//			
+//			double distance = boundedCalculator.getDisplacement(elapsedTime);
+//
+//			System.out.println(String.format("t: [%s], d: [%s]", Math.round(100*elapsedTime)/100.0, Math.round(100*distance)/100.0));
+//			
+//			Thread.sleep(10);
+//			
+//		}
+		
+		
+		
+		// starting visualizers
 		visualizer1.start();
+		double x = -40.75, y = 63.5, h = -90;
+		x = 0; y = 0; h = 0;
 		while (visualizer1.loop()) {
+			double dt = visualizer1.getDeltaTime();
+			Pose velocity = visualizer1.getCurrentVelocity();
+			x += dt * velocity.getX();
+			y += dt * velocity.getY();
+			h += dt * velocity.getHeading() * 180 / Math.PI;
+//			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", x, y, h));
+			
 			Thread.sleep(10);
-//			visualizer1.stop();
 		}
 
 		MovementVisualizer visualizer2 = new MovementVisualizer(seq2);

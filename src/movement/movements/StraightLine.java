@@ -17,6 +17,21 @@ public class StraightLine extends Movement{
 		this.endPose = endPose;
 		init();
 	}
+	
+	@Override
+	public Pose getVelocityPose(double elapsedTime) {
+		double theta = Math.atan2(
+				endPose.getY()-startPose.getY(), 
+				endPose.getX()-startPose.getX()
+		);
+		double velocity = calculator.getVelocity(elapsedTime);
+		
+		return new Pose(
+				velocity * Math.cos(theta), 
+				velocity * Math.sin(theta), 
+				turn.getVelocityPose(elapsedTime).getHeading()
+		);
+	}
 
 	@Override
 	public Pose getPose(double elapsedTime) {

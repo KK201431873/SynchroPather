@@ -1,4 +1,5 @@
 package movement.movements;
+
 import java.util.ArrayList;
 
 import movement.util.DisplacementCalculator;
@@ -29,14 +30,39 @@ public class CRSpline extends Movement {
 	public double getDistance() {
 		return distance;
 	}
-
-	@Override
-	public double getTime() {
-		return time;
-	}
 	
 	public ArrayList<Pose> getPoses() {
 		return poses;
+	}
+
+	@Override
+	public Pose getPose(double elapsedTime) {
+		int n = getLocalSegment(elapsedTime);
+		double p_r = getLocalProportion(elapsedTime);
+		
+		return getPose(n, p_r);
+	}
+
+	@Override
+	public Pose getVelocityPose(double elapsedTime) {
+		// get theta
+		int n = getLocalSegment(elapsedTime);
+		double p_r = getLocalProportion(elapsedTime);
+		Pose derivative = getDerivative(n, p_r);
+		
+		double theta = Math.atan2(derivative.getY(), derivative.getX());
+		double velocity = calculator.getVelocity(elapsedTime);
+		
+		return new Pose(
+				velocity * Math.cos(theta),
+				velocity * Math.sin(theta),
+				derivative.getHeading()
+		);
+	}
+	
+	@Override
+	public double getTime() {
+		return time;
 	}
 	
 	@Override
@@ -81,11 +107,48 @@ public class CRSpline extends Movement {
 		
 		return new Pose(tx, ty, theading);
 	}
+	
+	public Pose getDerivative(int segment, double t) {
+		if (segment < 0 || poses.size()-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.size()-2));
 
-	@Override
-	public Pose getPose(double elapsedTime) {
+		Pose p0 = poses.get(Math.max(0, segment-1));
+		Pose p1 = poses.get(segment);
+		Pose p2 = poses.get(segment + 1);
+		Pose p3 = poses.get(Math.min(poses.size()-1, segment+2));
+		
+		double tt = t*t;
+
+		double q0 = -3*tt + 4*t - 1;
+		double q1 = 9*tt - 10*t;
+		double q2 = -9*tt + 8*t + 1;
+		double q3 = 3*tt - 2*t;
+
+		double tx = 0.5 * (p0.getX()*q0 + p1.getX()*q1 + p2.getX()*q2 + p3.getX()*q3);
+		double ty = 0.5 * (p0.getY()*q0 + p1.getY()*q1 + p2.getY()*q2 + p3.getY()*q3);
+
+		double qh1 = -73.229*Math.exp(5*t)/Math.pow(12.2165+Math.exp(5*t),2);
+		double qh2 = 72.8915*Math.exp(5*t)/Math.pow(12.1486+Math.exp(5*t),2);
+		double theading = p1.getHeading()*qh1 + p2.getHeading()*qh2;
+		
+		return new Pose(tx, ty, theading);
+	}
+	
+	public int getLocalSegment(double elapsedTime) {
+		elapsedTime = bound(elapsedTime, 0, time);
+		
 		double dx = calculator.getDisplacement(elapsedTime);
-		int n = getSegment(elapsedTime);
+		double p_x = distance!=0 ? dx / distance : 0;
+		
+		int n = 0;
+		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
+		
+		return n;
+	}
+	
+	public double getLocalProportion(double elapsedTime) {
+		double dx = calculator.getDisplacement(elapsedTime);
+		int n = getLocalSegment(elapsedTime);
 		
 		double delta_t = DriveConstants.delta_t;
 		double p_r = 0;
@@ -98,19 +161,7 @@ public class CRSpline extends Movement {
 			lastPose = currentPose;
 		}
 		
-		return lastPose;
-	}
-	
-	public int getSegment(double elapsedTime) {
-		elapsedTime = bound(elapsedTime, 0, time);
-		
-		double dx = calculator.getDisplacement(elapsedTime);
-		double p_x = distance!=0 ? dx / distance : 0;
-		
-		int n = 0;
-		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
-		
-		return n;
+		return p_r;
 	}
 	
 	public String toString() {

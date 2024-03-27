@@ -12,6 +12,7 @@ public class MovementVisualizer {
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
 	private double elapsedTime, lastTime, deltaTime;
+	private Pose currentVelocity, currentPose;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
 	
@@ -73,8 +74,16 @@ public class MovementVisualizer {
 			elapsedTime += deltaTime;
 			if (elapsedTime > sequence.getTime())
 				elapsedTime = 0;
+
+			currentVelocity = sequence.getVelocityPose(elapsedTime);
+			currentVelocity = new Pose(
+					currentVelocity.getX(),
+					currentVelocity.getY(),
+					-currentVelocity.getHeading()
+			);
+//			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", velocity.getX(), velocity.getY(), velocity.getHeading()));
 			
-			Pose currentPose = sequence.getPose(elapsedTime);
+			currentPose = sequence.getPose(elapsedTime);
 			robotImage.setPose(currentPose, elapsedTime);
 
 	        frame.repaint();
@@ -101,6 +110,20 @@ public class MovementVisualizer {
 	
 	public void stop() {
 		requestedStop = true;
+	}
+	
+	public double getDeltaTime() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return deltaTime;
+	}
+
+	public Pose getCurrentPose() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return currentPose;
+	}
+	public Pose getCurrentVelocity() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return currentVelocity;
 	}
 	
 }
