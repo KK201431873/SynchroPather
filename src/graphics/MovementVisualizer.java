@@ -15,9 +15,14 @@ public class MovementVisualizer {
 	private Pose currentVelocity, currentPose;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
-	
-	
+	private final double timeFactor;
+
 	public MovementVisualizer(MovementSequence sequence) {
+		this(sequence, 1);
+	}
+	
+	public MovementVisualizer(MovementSequence sequence, double timeFactor) {
+		this.timeFactor = timeFactor;
 		this.sequence = sequence;
 		this.running = false;
 		this.paused = false;
@@ -71,7 +76,7 @@ public class MovementVisualizer {
 		if (running) {
 			double currentTime = System.currentTimeMillis() / 1000.0;
 			deltaTime = currentTime - lastTime;
-			elapsedTime += deltaTime;
+			elapsedTime += deltaTime * timeFactor;
 			if (elapsedTime > sequence.getTime())
 				elapsedTime = 0;
 

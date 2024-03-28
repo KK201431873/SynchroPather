@@ -9,7 +9,7 @@ public class Pose {
 	public Pose(double x, double y, double heading) {
 	    this.x = x;
 	    this.y = y;
-	    this.heading = normalizeAngle(heading);
+	    this.heading = heading;
 	}
 	
 	public double getX() {

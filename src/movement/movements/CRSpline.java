@@ -1,7 +1,9 @@
 package movement.movements;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import movement.util.BoundedDisplacementCalculator;
 import movement.util.DisplacementCalculator;
 import movement.util.Movement;
 import movement.util.MovementType;
@@ -11,20 +13,22 @@ import teamcode_util.DriveConstants;
 public class CRSpline extends Movement {
 
 	private double distance, time;
-	private double[] l, p, pi;
-	private ArrayList<Pose> poses = new ArrayList<>();
-	private DisplacementCalculator calculator;
+	private double[] lengths, times, partialTimes, props, partialProps;
+	private Pose[] poses;
+	private DisplacementCalculator dispCalculator;
+	private BoundedDisplacementCalculator[] turnCalculators;
+	private double[] correctedHeadings;
 
 	public CRSpline(ArrayList<Pose> poses) {
 		this.MOVEMENT_TYPE = MovementType.DRIVE;
-		this.poses = poses;
+		this.poses = poses.stream().toArray(Pose[]::new);
 		init();
 	}
 	
 	// primary methods
 
 	public double getLength() {
-		return poses.size();
+		return poses.length;
 	}
 	
 	public double getDistance() {
@@ -32,7 +36,7 @@ public class CRSpline extends Movement {
 	}
 	
 	public ArrayList<Pose> getPoses() {
-		return poses;
+		return new ArrayList<>(Arrays.asList(poses));
 	}
 
 	@Override
@@ -40,7 +44,12 @@ public class CRSpline extends Movement {
 		int n = getLocalSegment(elapsedTime);
 		double p_r = getLocalProportion(elapsedTime);
 		
-		return getPose(n, p_r);
+		Pose pose = getPose(n, p_r);
+
+		double heading = correctedHeadings[n] + turnCalculators[n].getDisplacement(elapsedTime - partialTimes[n]);
+//		System.out.println(times[n]+" vs "+ turnCalculators[n].getTime()+" @ "+(elapsedTime - partialTimes[n]));
+		
+		return new Pose(pose.getX(), pose.getY(), heading);
 	}
 
 	@Override
@@ -51,12 +60,14 @@ public class CRSpline extends Movement {
 		Pose derivative = getDerivative(n, p_r);
 		
 		double theta = Math.atan2(derivative.getY(), derivative.getX());
-		double velocity = calculator.getVelocity(elapsedTime);
+		double speed = dispCalculator.getVelocity(elapsedTime);
+
+		double angularVelocity = -turnCalculators[n].getVelocity(elapsedTime - partialTimes[n]);
 		
 		return new Pose(
-				velocity * Math.cos(theta),
-				velocity * Math.sin(theta),
-				derivative.getHeading()
+				speed * Math.cos(theta),
+				speed * Math.sin(theta),
+				angularVelocity
 		);
 	}
 	
@@ -67,28 +78,28 @@ public class CRSpline extends Movement {
 	
 	@Override
 	public Pose getStartPose() {
-		return poses.size()>0 ? poses.get(0) : null;
+		return poses.length>0 ? poses[0] : null;
 	}
 
 	@Override
 	public Pose getEndPose() {
-		return poses.size()>0 ? poses.get(poses.size()-1) : null;
+		return poses.length>0 ? poses[poses.length-1] : null;
 	}
 	
 	public Pose getPose(int index) {
-		if (index < 0 || poses.size()-1 < index)
-			throw new RuntimeException(String.format("Index %s outside of [%s,%s]", index, 0, poses.size()-1));
-		return poses.get(index);
+		if (index < 0 || poses.length-1 < index)
+			throw new RuntimeException(String.format("Index %s outside of [%s,%s]", index, 0, poses.length-1));
+		return poses[index];
 	}
 	
 	public Pose getPose(int segment, double t) {
-		if (segment < 0 || poses.size()-2 < segment)
-			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.size()-2));
+		if (segment < 0 || poses.length-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.length-2));
 
-		Pose p0 = poses.get(Math.max(0, segment-1));
-		Pose p1 = poses.get(segment);
-		Pose p2 = poses.get(segment + 1);
-		Pose p3 = poses.get(Math.min(poses.size()-1, segment+2));
+		Pose p0 = poses[Math.max(0, segment-1)];
+		Pose p1 = poses[segment];
+		Pose p2 = poses[segment + 1];
+		Pose p3 = poses[Math.min(poses.length-1, segment+2)];
 		
 		double tt = t*t;
 		double ttt = tt*t;
@@ -100,22 +111,18 @@ public class CRSpline extends Movement {
 
 		double tx = 0.5 * (p0.getX()*q0 + p1.getX()*q1 + p2.getX()*q2 + p3.getX()*q3);
 		double ty = 0.5 * (p0.getY()*q0 + p1.getY()*q1 + p2.getY()*q2 + p3.getY()*q3);
-
-		double qh1 = bound(1.2 / (1 + 148*Math.exp(5*(t-1.5))) - 0.1, 0, 1);
-		double qh2 = bound(1.2 / (1 + 148*Math.exp(-5*(t+0.5))) - 0.1, 0, 1);
-		double theading = p1.getHeading()*qh1 + p2.getHeading()*qh2;
 		
-		return new Pose(tx, ty, theading);
+		return new Pose(tx, ty, 0);
 	}
 	
 	public Pose getDerivative(int segment, double t) {
-		if (segment < 0 || poses.size()-2 < segment)
-			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.size()-2));
+		if (segment < 0 || poses.length-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.length-2));
 
-		Pose p0 = poses.get(Math.max(0, segment-1));
-		Pose p1 = poses.get(segment);
-		Pose p2 = poses.get(segment + 1);
-		Pose p3 = poses.get(Math.min(poses.size()-1, segment+2));
+		Pose p0 = poses[Math.max(0, segment-1)];
+		Pose p1 = poses[segment];
+		Pose p2 = poses[segment + 1];
+		Pose p3 = poses[Math.min(poses.length-1, segment+2)];
 		
 		double tt = t*t;
 
@@ -126,35 +133,31 @@ public class CRSpline extends Movement {
 
 		double tx = 0.5 * (p0.getX()*q0 + p1.getX()*q1 + p2.getX()*q2 + p3.getX()*q3);
 		double ty = 0.5 * (p0.getY()*q0 + p1.getY()*q1 + p2.getY()*q2 + p3.getY()*q3);
-
-		double qh1 = -73.229*Math.exp(5*t)/Math.pow(12.2165+Math.exp(5*t),2);
-		double qh2 = 72.8915*Math.exp(5*t)/Math.pow(12.1486+Math.exp(5*t),2);
-		double theading = p1.getHeading()*qh1 + p2.getHeading()*qh2;
 		
-		return new Pose(tx, ty, theading);
+		return new Pose(tx, ty, 0);
 	}
 	
 	public int getLocalSegment(double elapsedTime) {
 		elapsedTime = bound(elapsedTime, 0, time);
 		
-		double dx = calculator.getDisplacement(elapsedTime);
+		double dx = dispCalculator.getDisplacement(elapsedTime);
 		double p_x = distance!=0 ? dx / distance : 0;
 		
 		int n = 0;
-		while (n+1 < pi.length && p_x >= pi[n+1]) n++;
+		while (n+1 < partialProps.length && p_x >= partialProps[n+1]) n++;
 		
 		return n;
 	}
 	
 	public double getLocalProportion(double elapsedTime) {
-		double dx = calculator.getDisplacement(elapsedTime);
+		double dx = dispCalculator.getDisplacement(elapsedTime);
 		int n = getLocalSegment(elapsedTime);
 		
 		double delta_t = DriveConstants.delta_t;
 		double p_r = 0;
 		double localDisplacement = 0;
 		Pose lastPose = getPose(n,0);
-		while (localDisplacement < dx - pi[n] * distance) {
+		while (localDisplacement < dx - partialProps[n] * distance) {
 			p_r += delta_t;
 			Pose currentPose = getPose(n, p_r);
 			localDisplacement += Math.hypot(currentPose.getX()-lastPose.getX(), currentPose.getY()-lastPose.getY());
@@ -166,8 +169,8 @@ public class CRSpline extends Movement {
 	
 	public String toString() {
 		String res = "[";
-		for (int i = 0; i < poses.size(); i++)
-			res += String.format("%s%s", poses.get(i), (i==poses.size()-1 ? "" : ", "));
+		for (int i = 0; i < poses.length; i++)
+			res += String.format("%s%s", poses[i], (i==poses.length-1 ? "" : ", "));
 		return res + "]";
 	}
 	
@@ -176,17 +179,17 @@ public class CRSpline extends Movement {
 	}
 	
 	private void init() {
-		l = new double[Math.max(0, poses.size()-1)];
-		p = new double[Math.max(0, poses.size()-1)];
-		pi = new double[Math.max(0, poses.size()-1)];
+		lengths = new double[Math.max(0, poses.length-1)];
 
+		// calculate distance
 		distance = 0;
 		double delta_t = DriveConstants.delta_t;
-		double x = poses.get(0).getX();
-		double y = poses.get(0).getY();
-		for (int i = 0; i < poses.size()-1; i++) {
+		double x = poses[0].getX();
+		double y = poses[0].getY();
+		for (int i = 0; i < poses.length-1; i++) {
 			double length = 0;
 			for (double t = 0; t <= 1; t += delta_t) {
+				// integrate distances over time
 				Pose currentPose = getPose(i, t);
 				double deltaDistance = Math.hypot(currentPose.getX()-x, currentPose.getY()-y);
 				distance += deltaDistance;
@@ -194,20 +197,61 @@ public class CRSpline extends Movement {
 				x = currentPose.getX();
 				y = currentPose.getY();
 			}
-			l[i] = length;
-		}
-		
-		double partialSum = 0;
-		for (int i = 0; i < l.length; i++) {
-			pi[i] = partialSum / distance;
-			p[i] = l[i] / distance;
-			partialSum += l[i];
+			lengths[i] = length;
 		}
 
-		calculator = new DisplacementCalculator(distance, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
+		dispCalculator = new DisplacementCalculator(distance, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
+		time = dispCalculator.getTime();
+
+		turnCalculators = new BoundedDisplacementCalculator[Math.max(0, poses.length-1)];
 		
-		time = calculator.getTime();
+		times = new double[Math.max(0, poses.length-1)];
+		partialTimes = new double[Math.max(0, poses.length-1)];
+		props = new double[Math.max(0, poses.length-1)];
+		partialProps = new double[Math.max(0, poses.length-1)];
+		
+		correctedHeadings = new double[poses.length];
+		correctedHeadings[0] = poses[0].getHeading();
+		
+		// calculate props, time, and create turn calculators
+		double partialLength = 0;
+		double partialTime = 0;
+		double h = poses[0].getHeading();
+		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
+		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
+		for (int i = 0; i < lengths.length; i++) {
+			// calculate proportions
+			partialProps[i] = partialLength / distance;
+			props[i] = lengths[i] / distance;
+			partialLength += lengths[i];
+			
+			// calculate times
+			double currentPartialTime = dispCalculator.getElapsedTime(partialLength);
+			partialTimes[i] = partialTime;
+			times[i] = currentPartialTime - partialTime;
+			partialTime = currentPartialTime;
+			
+			// create turn calculator
+			double delta_h = normalizeAngle(poses[i+1].getHeading() - h);
+			turnCalculators[i] = new BoundedDisplacementCalculator(delta_h, times[i], MAV, MAA);
+			h += turnCalculators[i].getTotalDisplacement();
+			correctedHeadings[i+1] = h;
+		}
 		
 	}
+
+    /**
+     * Normalizes a given angle to [-180,180) degrees.
+     * @param degrees the given angle in degrees.
+     * @return the normalized angle in degrees.
+     */
+    private double normalizeAngle(double degrees) {
+        double angle = degrees;
+        while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+            angle += 2*Math.PI;
+        while (angle > Math.PI) //TODO: opMode.opModeIsActive() && 
+            angle -= 2*Math.PI;
+        return angle;
+    }
 
 }

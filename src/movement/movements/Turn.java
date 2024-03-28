@@ -7,35 +7,34 @@ import teamcode_util.DriveConstants;
 
 public class Turn extends Movement {
 
-	private double distance, time;
+	private double displacement, time;
 	private Pose startPose, endPose;
 	private DisplacementCalculator calculator;
 
 	public Turn(Pose startPose, double radians) {
+		this.displacement = -radians;
 		this.startPose = startPose;
 		this.endPose = new Pose(
 				startPose.getX(), 
 				startPose.getY(), 
-				startPose.getHeading()-radians
+				normalizeAngle(startPose.getHeading() + displacement)
 		);
 		init();
 	}
 
 	@Override
 	public Pose getPose(double elapsedTime) {
-		double t = distance!=0 ? calculator.getDisplacement(elapsedTime) / distance : 0;
+		double t = displacement!=0 ? calculator.getDisplacement(elapsedTime) / displacement : 0;
+		t = Math.abs(t);
 
-		double q0 = 1 - t;
-		double q1 = t;
-
-		double theading = startPose.getHeading()*q0 + endPose.getHeading()*q1;
+		double theading = startPose.getHeading() + displacement*t;
 
 		return new Pose(endPose.getX(), endPose.getY(), theading);
 	}
 	
 	@Override
 	public Pose getVelocityPose(double elapsedTime) {
-		return new Pose(0, 0, calculator.getVelocity(elapsedTime));
+		return new Pose(0, 0, -calculator.getVelocity(elapsedTime));
 	}
 
 	@Override
@@ -54,9 +53,10 @@ public class Turn extends Movement {
 	}
 	
 	private void init() {
-		distance = normalizeAngle(endPose.getHeading() - startPose.getHeading());
 
-		calculator = new DisplacementCalculator(distance, DriveConstants.MAX_ANGULAR_VELOCITY, DriveConstants.MAX_ANGULAR_ACCELERATION);
+		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
+		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
+		calculator = new DisplacementCalculator(displacement, MAV, MAA);
 		
 		time = calculator.getTime();
 		

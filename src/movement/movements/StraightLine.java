@@ -64,7 +64,9 @@ public class StraightLine extends Movement{
 	private void init() {
 		distance = Math.hypot(endPose.getX()-startPose.getX(), endPose.getY()-startPose.getY());
 
-		calculator = new DisplacementCalculator(distance, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
+		double MV = DriveConstants.MAX_VELOCITY;
+		double MA = DriveConstants.MAX_ACCELERATION;
+		calculator = new DisplacementCalculator(distance, MV, MA);
 		
 		time = calculator.getTime();
 		
