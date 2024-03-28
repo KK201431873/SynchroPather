@@ -11,7 +11,7 @@ public class Main {
 	public static void main(String[] args) throws InterruptedException {
 
         CRSpline spline1 = new CRSplineBuilder(-40.75,63.5,-90)
-				.addPose(-40.75,38,0)
+				.addPose(-40.75,38,90)
 				.addPose(43,36,0)
 				.build();
 
@@ -43,8 +43,13 @@ public class Main {
 				.addCRSpline(spline3)
 				.addCRSpline(spline4)
 				.addCRSpline(spline5)
-				.rightAndTurn(20, 180)
+				.rightAndTurn(24, 180)
 				.backward(10)
+				.goStraightTo(0, 0, 0)
+				.goStraightTo(72, 72, 90)
+				.goStraightTo(-72, 72, 180)
+				.goStraightTo(-72, -72, 270)
+				.goStraightTo(72, -72, 360)
 				.goStraightTo(0, 0, 0)
 				.build();
 		
@@ -110,7 +115,7 @@ public class Main {
 			y += dt * yv;
 			h += dt * hv;
 //			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", xv, yv, hv));
-//			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nIntegral \nX:%s \nY:%s \nH:%s", x, y, h));
+			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nIntegral \nX:%s \nY:%s \nH:%s", x, y, h));
 			
 			Thread.sleep(16);
 		}

@@ -239,7 +239,6 @@ public class CRSpline extends Movement {
 		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
 		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
 		for (int i = 0; i < lengths.length; i++) {
-			
 			// create turn calculator
 			int index = i;
 			double corrected_delta_h = normalizeAngle(poses[i+1].getHeading() - corrected_h);
@@ -253,10 +252,9 @@ public class CRSpline extends Movement {
 			
 			// get max time available for completing turn
 			double maxTime = 0;
-			double delta_h;
+			double delta_h = normalizeAngle(poses[i+1].getHeading() - h);
 			do {
 				// get change in heading since last
-				delta_h = normalizeAngle(poses[i+1].getHeading() - h);
 				h += delta_h;
 				maxTime += times[i];
 				correctedHeadings[i] = correctedHeadings[index];
@@ -265,8 +263,10 @@ public class CRSpline extends Movement {
 				turnCalculators[i] = null;
 				
 				i++;
+				if (i == lengths.length) break;
+				delta_h = normalizeAngle(poses[i+1].getHeading() - h);
 			}
-			while (i < lengths.length && delta_h != 0);
+			while (i < lengths.length && delta_h == 0);
 			i--;
 			
 			// create turn calculator for the original segment, bounded by the max time
@@ -282,8 +282,11 @@ public class CRSpline extends Movement {
 			// update heading values for next iteration
 			corrected_h += turnCalculators[index].getTotalDisplacement();
 			correctedHeadings[i+1] = corrected_h;
-			
 		}
+
+		// debug print
+//		for (double i : correctedHeadings) System.out.print(i+" ");
+//		System.out.println();
 		
 	}
 
