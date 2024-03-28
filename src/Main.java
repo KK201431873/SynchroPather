@@ -110,7 +110,7 @@ public class Main {
 			y += dt * yv;
 			h += dt * hv;
 //			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", xv, yv, hv));
-			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nIntegral \nX:%s \nY:%s \nH:%s", x, y, h));
+//			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nIntegral \nX:%s \nY:%s \nH:%s", x, y, h));
 			
 			Thread.sleep(16);
 		}

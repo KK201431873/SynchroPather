@@ -46,8 +46,9 @@ public class CRSpline extends Movement {
 		
 		Pose pose = getPose(n, p_r);
 
-		double heading = correctedHeadings[n] + turnCalculators[n].getDisplacement(elapsedTime - partialTimes[n]);
-//		System.out.println(times[n]+" vs "+ turnCalculators[n].getTime()+" @ "+(elapsedTime - partialTimes[n]));
+		int turnIndex = n;
+		while (turnCalculators[turnIndex] == null) turnIndex--;
+		double heading = correctedHeadings[turnIndex] + turnCalculators[turnIndex].getDisplacement(elapsedTime - partialTimes[turnIndex]);
 		
 		return new Pose(pose.getX(), pose.getY(), heading);
 	}
@@ -62,7 +63,9 @@ public class CRSpline extends Movement {
 		double theta = Math.atan2(derivative.getY(), derivative.getX());
 		double speed = dispCalculator.getVelocity(elapsedTime);
 
-		double angularVelocity = -turnCalculators[n].getVelocity(elapsedTime - partialTimes[n]);
+		int turnIndex = n;
+		while (turnCalculators[turnIndex] == null) turnIndex--;
+		double angularVelocity = -turnCalculators[turnIndex].getVelocity(elapsedTime - partialTimes[turnIndex]);
 		
 		return new Pose(
 				speed * Math.cos(theta),
@@ -179,6 +182,7 @@ public class CRSpline extends Movement {
 	}
 	
 	private void init() {
+		
 		lengths = new double[Math.max(0, poses.length-1)];
 
 		// calculate distance
@@ -213,12 +217,9 @@ public class CRSpline extends Movement {
 		correctedHeadings = new double[poses.length];
 		correctedHeadings[0] = poses[0].getHeading();
 		
-		// calculate props, time, and create turn calculators
+		// calculate props, time
 		double partialLength = 0;
 		double partialTime = 0;
-		double h = poses[0].getHeading();
-		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
-		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
 		for (int i = 0; i < lengths.length; i++) {
 			// calculate proportions
 			partialProps[i] = partialLength / distance;
@@ -230,12 +231,58 @@ public class CRSpline extends Movement {
 			partialTimes[i] = partialTime;
 			times[i] = currentPartialTime - partialTime;
 			partialTime = currentPartialTime;
+		}
+		
+		// create turn calculators
+		double h = poses[0].getHeading();
+		double corrected_h = poses[0].getHeading();
+		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
+		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
+		for (int i = 0; i < lengths.length; i++) {
 			
 			// create turn calculator
-			double delta_h = normalizeAngle(poses[i+1].getHeading() - h);
-			turnCalculators[i] = new BoundedDisplacementCalculator(delta_h, times[i], MAV, MAA);
-			h += turnCalculators[i].getTotalDisplacement();
-			correctedHeadings[i+1] = h;
+			int index = i;
+			double corrected_delta_h = normalizeAngle(poses[i+1].getHeading() - corrected_h);
+			
+			// skip if no change in heading
+			if (corrected_delta_h == 0) {
+				turnCalculators[index] = new BoundedDisplacementCalculator(0, 1, 1, 1);
+				correctedHeadings[index+1] = corrected_h;
+				continue;
+			}
+			
+			// get max time available for completing turn
+			double maxTime = 0;
+			double delta_h;
+			do {
+				// get change in heading since last
+				delta_h = normalizeAngle(poses[i+1].getHeading() - h);
+				h += delta_h;
+				maxTime += times[i];
+				correctedHeadings[i] = correctedHeadings[index];
+				
+				// set non-turning segments to null
+				turnCalculators[i] = null;
+				
+				i++;
+			}
+			while (i < lengths.length && delta_h != 0);
+			i--;
+			
+			// create turn calculator for the original segment, bounded by the max time
+			if (i == lengths.length-1) {
+				// it is the last segment, make sure robot reaches final pose
+				DisplacementCalculator turnTimer = new DisplacementCalculator(corrected_delta_h, MAV, MAA);
+				times[times.length-1] += Math.max(0, turnTimer.getTime() - maxTime);
+				time += Math.max(0, turnTimer.getTime() - maxTime);
+				maxTime = turnTimer.getTime();
+			}
+			turnCalculators[index] = new BoundedDisplacementCalculator(corrected_delta_h, maxTime, MAV, MAA);
+			
+			// update heading values for next iteration
+			corrected_h += turnCalculators[index].getTotalDisplacement();
+			correctedHeadings[i+1] = corrected_h;
+			
 		}
 		
 	}
