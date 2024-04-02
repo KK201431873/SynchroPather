@@ -5,35 +5,31 @@ import javax.swing.JFrame;
 
 import movement.MovementSequence;
 import movement.util.Pose;
+import teamcode_util.DriveConstants;
 
 public class MovementVisualizer {
 
 	private MovementSequence sequence;
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
-	private double time, elapsedTime, lastTime, deltaTime;
+	private double time, elapsedTime, lastTime, deltaTime, lookahead;
 	private Pose currentVelocity, currentPose;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
 	private final double timeFactor;
 
 	public MovementVisualizer(MovementSequence sequence) {
-		this(sequence, 1);
+		this(sequence, 1, DriveConstants.LOOKAHEAD);
 	}
 	
-	public MovementVisualizer(MovementSequence sequence, double timeFactor) {
+	public MovementVisualizer(MovementSequence sequence, double timeFactor, double lookaheadDistance) {
 		this.timeFactor = timeFactor;
 		this.sequence = sequence;
 		this.running = false;
 		this.paused = false;
 		this.requestedStop = false;
 		this.time = sequence.getTime();
-	}
-	
-	public void setMovementSequence(MovementSequence sequence) {
-		if (running) throw new RuntimeException("Cannot set new MovementSequence while simulation is running!");
-		this.sequence = sequence;
-		this.time = sequence.getTime();
+		this.lookahead = lookaheadDistance;
 	}
 	
 	public double getTime() {
@@ -83,7 +79,7 @@ public class MovementVisualizer {
 			double currentTime = System.currentTimeMillis() / 1000.0;
 			deltaTime = currentTime - lastTime;
 			elapsedTime += deltaTime * timeFactor;
-			if (elapsedTime > sequence.getTime())
+			if (elapsedTime > time)
 				elapsedTime = 0;
 
 			currentVelocity = sequence.getVelocityPose(elapsedTime);
@@ -95,7 +91,10 @@ public class MovementVisualizer {
 //			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", velocity.getX(), velocity.getY(), velocity.getHeading()));
 			
 			currentPose = sequence.getPose(elapsedTime);
-			robotImage.setPose(currentPose, elapsedTime);
+			double lookaheadTime = (elapsedTime + Math.min(time, elapsedTime + lookahead)) / 2d;
+			Pose lookaheadPose = sequence.getPose(lookaheadTime);
+			
+			robotImage.setPose(currentPose, lookaheadPose, elapsedTime);
 
 	        frame.repaint();
 	        lastTime = currentTime;

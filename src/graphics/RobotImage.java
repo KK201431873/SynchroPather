@@ -18,7 +18,7 @@ import movement.util.Pose;
 @SuppressWarnings("serial")
 public class RobotImage extends JComponent {
 	
-	public double x, y, heading;
+	public double x, y, heading, lx, ly, lheading;
 	private MovementSequenceImage movementSequenceImage;
 	private static double[] WORLD_ORIGIN = CanvasConstants.WORLD_ORIGIN;
 	private static double PIXEL_PER_INCH = CanvasConstants.PIXEL_PER_INCH;
@@ -28,17 +28,23 @@ public class RobotImage extends JComponent {
 		x = 0;
 		y = 0;
 		heading = 0;
+		lx = 0;
+		ly = 0;
+		lheading = 0;
 	}
 	
 	public void setSplineImage(MovementSequenceImage movementSequenceImage) {
 		this.movementSequenceImage = movementSequenceImage;
 	}
 	
-	public void setPose(Pose pose, double elapsedTime) {
+	public void setPose(Pose pose, Pose lookaheadPose, double elapsedTime) {
 		this.x = pose.getX();
 		this.y = pose.getY();
 		this.heading = pose.getHeading();
 		movementSequenceImage.setElapsedTime(elapsedTime);
+		this.lx = lookaheadPose.getX();
+		this.ly = lookaheadPose.getY();
+		this.lheading = lookaheadPose.getHeading();
 	}
 	
 	public void setX(double x) {
@@ -52,10 +58,46 @@ public class RobotImage extends JComponent {
 	public void setHeading(double heading) {
 		this.heading = heading;
 	}
+	
+	public void setLX(double lx) {
+		this.lx = lx;
+	}
+	
+	public void setLY(double ly) {
+		this.ly = ly;
+	}
+	
+	public void setLHeading(double lheading) {
+		this.lheading = lheading;
+	}
 		  
     public void paint(Graphics g)
     {
         Graphics2D g2 = (Graphics2D) g;
+
+        BufferedImage bg = null;
+		try {
+			bg = ImageIO.read(new File("src/graphics/centerstage_field.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        g2.drawImage(bg, 0, 0, 768, 768, null);
+        
+        // draw path here
+        movementSequenceImage.paint(g);
+
+        drawRobotAt(g2, x, y, heading, new Color(68, 142, 228), 1);
+        drawRobotAt(g2, lx, ly, lheading, new Color(228, 142, 68), 1/3d);
+
+        Line2D connectingLine = new Line2D.Double(x*PIXEL_PER_INCH + WORLD_ORIGIN[0], -y*PIXEL_PER_INCH + WORLD_ORIGIN[1], lx * PIXEL_PER_INCH + WORLD_ORIGIN[0], -ly*PIXEL_PER_INCH + WORLD_ORIGIN[1]);
+		g2.setColor(new Color(255, 0, 0, 255));
+        g2.setStroke(new BasicStroke(5));
+        g2.draw(connectingLine);
+        
+    }
+    
+    private void drawRobotAt(Graphics2D g2, double x, double y, double heading, Color color, double opacity) {
 
         double renderX = x * PIXEL_PER_INCH;
         double renderY = -y * PIXEL_PER_INCH;
@@ -86,20 +128,6 @@ public class RobotImage extends JComponent {
 			corners[i][0] = rx+WORLD_ORIGIN[0];
 			corners[i][1] = ry+WORLD_ORIGIN[1];
 		}
-
-        BufferedImage bg = null;
-		try {
-			bg = ImageIO.read(new File("src/graphics/centerstage_field.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        
-        g2.drawImage(bg, 0, 0, 768, 768, null);
-        
-        
-        // draw path here
-        movementSequenceImage.paint(g);
-        
         
         // draw robot here
 		Path2D.Double path = new Path2D.Double();
@@ -109,7 +137,7 @@ public class RobotImage extends JComponent {
 		path.lineTo(corners[3][0], corners[3][1]);
 		path.lineTo(corners[0][0], corners[0][1]);
 		path.closePath();
-		g2.setColor(new Color(68, 142, 228, 144));
+		g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (144*opacity)));
 		g2.fill(path);
 
         Line2D side0 = new Line2D.Double(corners[0][0], corners[0][1], corners[1][0], corners[1][1]);
@@ -118,16 +146,16 @@ public class RobotImage extends JComponent {
         Line2D side3 = new Line2D.Double(corners[3][0], corners[3][1], corners[0][0], corners[0][1]);
         Line2D headingLine = new Line2D.Double(renderX+WORLD_ORIGIN[0], renderY+WORLD_ORIGIN[1], corners[4][0], corners[4][1]);
 		
-		g2.setColor(new Color(0, 0, 0));
+		g2.setColor(new Color(0, 0, 0, (int) (255*opacity)));
         g2.setStroke(new BasicStroke(5));
-		g2.setColor(new Color(68, 142, 228));
+		g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (255*opacity)));
         g2.draw(side0);
         g2.draw(side1);
         g2.draw(side2);
         g2.draw(side3);
-		g2.setColor(new Color(8, 82, 168));
+		g2.setColor(new Color((int)(0.5*color.getRed()), (int)(0.5*color.getGreen()), (int)(0.5*color.getBlue()), (int) (255*opacity)));
         g2.draw(headingLine);
-        
+    	
     }
     
 }
