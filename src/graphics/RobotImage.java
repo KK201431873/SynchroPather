@@ -89,7 +89,7 @@ public class RobotImage extends JComponent {
 
         BufferedImage bg = null;
 		try {
-			bg = ImageIO.read(new File("src/centerstage_field.png"));
+			bg = ImageIO.read(new File("src/graphics/centerstage_field.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

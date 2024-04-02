@@ -51,7 +51,7 @@ public class MovementVisualizer {
         frame = new JFrame("Spline Sim");
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setIconImage(new ImageIcon("./src/DRIVE.png").getImage());
+        frame.setIconImage(new ImageIcon("src/graphics/DRIVE.png").getImage());
 
         robotImage = new RobotImage();
         splineImage = new MovementSequenceImage(sequence);
