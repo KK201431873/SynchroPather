@@ -42,7 +42,7 @@ public class StraightLine extends Movement{
 
 		double tx = startPose.getX()*q0 + endPose.getX()*q1;
 		double ty = startPose.getY()*q0 + endPose.getY()*q1;
-		double theading = turn.getPose(elapsedTime).getHeading();
+		double theading = normalizeAngle(turn.getPose(elapsedTime).getHeading());
 
 		return new Pose(tx, ty, theading);
 	}
@@ -72,6 +72,20 @@ public class StraightLine extends Movement{
 		
 		turn = new Turn(startPose, startPose.getHeading()-endPose.getHeading());
 		
+	}
+	
+	/**
+	 * Normalizes a given angle to [-pi,pi) radians.
+	 * @param degrees the given angle in radians.
+	 * @return the normalized angle in radians.
+	 */
+	private double normalizeAngle(double degrees) {
+	    double angle = degrees;
+	    while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+	        angle += 2*Math.PI;
+	    while (angle > Math.PI)
+	        angle -= 2*Math.PI;
+	    return angle;
 	}
 
 }

@@ -27,7 +27,7 @@ public class Turn extends Movement {
 		double t = displacement!=0 ? calculator.getDisplacement(elapsedTime) / displacement : 0;
 		t = Math.abs(t);
 
-		double theading = startPose.getHeading() + displacement*t;
+		double theading = normalizeAngle(startPose.getHeading() + displacement*t);
 
 		return new Pose(endPose.getX(), endPose.getY(), theading);
 	}

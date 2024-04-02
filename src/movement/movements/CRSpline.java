@@ -49,6 +49,7 @@ public class CRSpline extends Movement {
 		int turnIndex = n;
 		while (turnCalculators[turnIndex] == null) turnIndex--;
 		double heading = correctedHeadings[turnIndex] + turnCalculators[turnIndex].getDisplacement(elapsedTime - partialTimes[turnIndex]);
+		heading = normalizeAngle(heading);
 		
 		return new Pose(pose.getX(), pose.getY(), heading);
 	}

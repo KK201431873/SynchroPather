@@ -11,7 +11,7 @@ public class MovementVisualizer {
 	private MovementSequence sequence;
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
-	private double elapsedTime, lastTime, deltaTime;
+	private double time, elapsedTime, lastTime, deltaTime;
 	private Pose currentVelocity, currentPose;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
@@ -27,11 +27,17 @@ public class MovementVisualizer {
 		this.running = false;
 		this.paused = false;
 		this.requestedStop = false;
+		this.time = sequence.getTime();
 	}
 	
 	public void setMovementSequence(MovementSequence sequence) {
 		if (running) throw new RuntimeException("Cannot set new MovementSequence while simulation is running!");
 		this.sequence = sequence;
+		this.time = sequence.getTime();
+	}
+	
+	public double getTime() {
+		return time;
 	}
 	
 	public JFrame getFrame() {
@@ -115,6 +121,11 @@ public class MovementVisualizer {
 	
 	public void stop() {
 		requestedStop = true;
+	}
+	
+	public double getElapsedTime() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return elapsedTime;
 	}
 	
 	public double getDeltaTime() {

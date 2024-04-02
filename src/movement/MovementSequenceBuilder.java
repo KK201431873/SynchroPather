@@ -152,7 +152,7 @@ public class MovementSequenceBuilder {
 	}
 	
 	public MovementSequenceBuilder goStraightTo(double x, double y, double heading) {
-		add(new StraightLine(lastPose, new Pose(x, y, heading * Math.PI / 180.0)));
+		add(new StraightLine(lastPose, new Pose(x, y, normalizeAngle(heading * Math.PI / 180.0))));
 		return this; 
 	}
 	
@@ -165,6 +165,25 @@ public class MovementSequenceBuilder {
 		if (!movement.getStartPose().isEqualTo(lastPose)) throw new RuntimeException(String.format("Movement %s (%s) does not start at the same Pose as the previous Movement (Movement $s)", movements.size(), movement.getClass(), movements.size()-1));
 		movements.add(movement);
 		lastPose = movement.getEndPose();
+		lastPose = new Pose(
+				lastPose.getX(), 
+				lastPose.getY(), 
+				normalizeAngle(lastPose.getHeading())
+		);
+	}
+	
+	/**
+	 * Normalizes a given angle to [-pi,pi) radians.
+	 * @param degrees the given angle in radians.
+	 * @return the normalized angle in radians.
+	 */
+	private double normalizeAngle(double degrees) {
+	    double angle = degrees;
+	    while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+	        angle += 2*Math.PI;
+	    while (angle > Math.PI)
+	        angle -= 2*Math.PI;
+	    return angle;
 	}
 	
 }
