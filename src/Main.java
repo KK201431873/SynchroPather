@@ -5,7 +5,6 @@ import movement.MovementSequenceBuilder;
 import movement.movements.CRSpline;
 import movement.movements.CRSplineBuilder;
 import movement.util.Pose;
-import teamcode_util.DriveConstants;
 
 public class Main {
 
@@ -105,7 +104,7 @@ public class Main {
 //		}
 		
 		double timeFactor = 1;
-		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor, DriveConstants.LOOKAHEAD);
+		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor);
 		
 		// starting visualizers
 		double time1 = visualizer1.getTime();
