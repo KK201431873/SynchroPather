@@ -5,6 +5,9 @@ import movement.util.Movement;
 import movement.util.Pose;
 import teamcode_util.DriveConstants;
 
+/**
+ * Object containing the motion plan for following a linear trajectory with respect to elapsed time.
+ */
 public class StraightLine extends Movement{
 	
 	private double distance, time;
@@ -12,13 +15,30 @@ public class StraightLine extends Movement{
 	private DisplacementCalculator calculator;
 	private Turn turn;
 	
+	/**
+	 * Creates a new StraightLine object with a given start and end Pose.
+	 * @param startPose
+	 * @param endPose
+	 */
 	public StraightLine(Pose startPose, Pose endPose) {
 		this.startPose = startPose;
 		this.endPose = endPose;
 		init();
 	}
+
+	public Pose getPose(double elapsedTime) {
+		double t = distance!=0 ? calculator.getDisplacement(elapsedTime) / distance : 0;
+
+		double q0 = 1 - t;
+		double q1 = t;
+
+		double tx = startPose.getX()*q0 + endPose.getX()*q1;
+		double ty = startPose.getY()*q0 + endPose.getY()*q1;
+		double theading = normalizeAngle(turn.getPose(elapsedTime).getHeading());
+
+		return new Pose(tx, ty, theading);
+	}
 	
-	@Override
 	public Pose getVelocityPose(double elapsedTime) {
 		double theta = Math.atan2(
 				endPose.getY()-startPose.getY(), 
@@ -33,21 +53,6 @@ public class StraightLine extends Movement{
 		);
 	}
 
-	@Override
-	public Pose getPose(double elapsedTime) {
-		double t = distance!=0 ? calculator.getDisplacement(elapsedTime) / distance : 0;
-
-		double q0 = 1 - t;
-		double q1 = t;
-
-		double tx = startPose.getX()*q0 + endPose.getX()*q1;
-		double ty = startPose.getY()*q0 + endPose.getY()*q1;
-		double theading = normalizeAngle(turn.getPose(elapsedTime).getHeading());
-
-		return new Pose(tx, ty, theading);
-	}
-
-	@Override
 	public double getTime() {
 		return Math.max(time, turn.getTime());
 	}
@@ -56,11 +61,13 @@ public class StraightLine extends Movement{
 		return startPose;
 	}
 
-	@Override
 	public Pose getEndPose() {
 		return endPose;
 	}
 	
+	/**
+	 * Calculates total time.
+	 */
 	private void init() {
 		distance = Math.hypot(endPose.getX()-startPose.getX(), endPose.getY()-startPose.getY());
 

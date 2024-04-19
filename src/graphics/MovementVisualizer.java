@@ -13,6 +13,9 @@ import movement.MovementSequence;
 import movement.util.Pose;
 import teamcode_util.DriveConstants;
 
+/**
+ * Object that utilizes Java AWT to visualize a MovementSequence in a pop-up window.
+ */
 public class MovementVisualizer {
 
 	private MovementSequence sequence;
@@ -26,20 +29,42 @@ public class MovementVisualizer {
 	private final double timeFactor;
 	private final int fontSize;
 
+	/**
+	 * Creates a new MovementVisualizer object with the given sequence.
+	 * @param sequence
+	 */
 	public MovementVisualizer(MovementSequence sequence) {
 		this(sequence, 1, DriveConstants.LOOKAHEAD, 25);
 	}
 	
+	/**
+	 * Creates a new MovementVisualizer object with the given sequence.
+	 * @param sequence
+	 * @param timeFactor between 0 and 1
+	 */
 	public MovementVisualizer(MovementSequence sequence, double timeFactor) {
 		this(sequence, timeFactor, DriveConstants.LOOKAHEAD, 25);
 	}
 	
+	/**
+	 * Creates a new MovementVisualizer object with the given sequence.
+	 * @param sequence
+	 * @param timeFactor between 0 and 1
+	 * @param lookaheadDistance seconds
+	 */
 	public MovementVisualizer(MovementSequence sequence, double timeFactor, double lookaheadDistance) {
 		this(sequence, timeFactor, lookaheadDistance, 25);
 	}
 	
+	/**
+	 * Creates a new MovementVisualizer object with the given sequence.
+	 * @param sequence
+	 * @param timeFactor between 0 and 1
+	 * @param lookaheadDistance seconds
+	 * @param fontSize
+	 */
 	public MovementVisualizer(MovementSequence sequence, double timeFactor, double lookaheadDistance, int fontSize) {
-		this.timeFactor = timeFactor;
+		this.timeFactor = bound(timeFactor, 0, 1);
 		this.sequence = sequence;
 		this.running = false;
 		this.paused = false;
@@ -49,14 +74,23 @@ public class MovementVisualizer {
 		this.fontSize = fontSize;
 	}
 	
+	/**
+	 * @return the total runtime per cycle.
+	 */
 	public double getTime() {
 		return time;
 	}
 	
+	/**
+	 * @return the JFrame object of this MovementVisualizer.
+	 */
 	public JFrame getFrame() {
 		return frame;
 	}
 	
+	/**
+	 * Launches the window and begins this MovementVisualizer.
+	 */
 	public void start() {
 		if (running) throw new RuntimeException("Simulation is already running!");
 		running = true;
@@ -114,6 +148,10 @@ public class MovementVisualizer {
 		
 	}
 	
+	/**
+	 * Handles the next frame of this MovementVisualizer if it is running. Use as the condition for a while loop.
+	 * @return whether or not stop has been requested.
+	 */
 	public boolean loop() {
 		if (requestedStop) {
 			running = false;
@@ -140,8 +178,7 @@ public class MovementVisualizer {
 					currentVelocity.getY(),
 					-currentVelocity.getHeading()
 			);
-//			System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nVelocity \nX:%s \nY:%s \nH:%s", velocity.getX(), velocity.getY(), velocity.getHeading()));
-			
+
 			currentPose = sequence.getPose(elapsedTime);
 			double lookaheadTime = (elapsedTime + Math.min(time, elapsedTime + lookahead)) / 2d;
 			Pose lookaheadPose = sequence.getPose(lookaheadTime);
@@ -163,39 +200,74 @@ public class MovementVisualizer {
 		return true;
 	}
 	
+	/**
+	 * Pauses this MovementVisualizer if it is running.
+	 */
 	public void pause() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
 		if (!paused)
 	        System.out.println("Simulation Paused");
 		paused = true;
 	}
-	
+
+	/**
+	 * Un-pauses this MovementVisualizer if it is running.
+	 */
 	public void unpause() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
 		if (paused)
 	        System.out.println("Simulation Unpaused");
 		paused = false;
 	}
 	
+	/**
+	 * Requests this MovementVisualizer to stop and close the JFrame window.
+	 */
 	public void stop() {
 		requestedStop = true;
 	}
 	
+	/**
+	 * @return the current elapsed time of this MovementVisualizer if it is running.
+	 */
 	public double getElapsedTime() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
 		return elapsedTime;
 	}
 	
+	/**
+	 * @return the time since the last time loop() was called if this MovementVisualizer is running.
+	 */
 	public double getDeltaTime() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
 		return deltaTime;
 	}
 
+	/**
+	 * @return the current pose of this MovementVisualizer if it is running.
+	 */
 	public Pose getCurrentPose() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
 		return currentPose;
 	}
+
+	/**
+	 * @return the current velocity pose of this MovementVisualizer if it is running.
+	 */
 	public Pose getCurrentVelocity() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
 		return currentVelocity;
+	}
+
+	/**
+	 * Clips the input x between a given lower and upper bound.
+	 * @param x
+	 * @param lower
+	 * @param upper
+	 * @return the clipped value of x.
+	 */
+	private static double bound(double x, double lower, double upper) {
+		return Math.max(lower, Math.min(upper, x));
 	}
 	
 }

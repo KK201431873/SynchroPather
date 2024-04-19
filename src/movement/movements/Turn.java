@@ -5,12 +5,20 @@ import movement.util.Movement;
 import movement.util.Pose;
 import teamcode_util.DriveConstants;
 
+/**
+ * Object containing the motion plan for a turn trajectory with respect to elapsed time.
+ */
 public class Turn extends Movement {
 
 	private double displacement, time;
 	private Pose startPose, endPose;
 	private DisplacementCalculator calculator;
 
+	/**
+	 * Creates a new Turn object with a given starting Pose and turn angle.
+	 * @param startPose
+	 * @param radians (positive = turn right)
+	 */
 	public Turn(Pose startPose, double radians) {
 		this.displacement = -radians;
 		this.startPose = startPose;
@@ -22,7 +30,6 @@ public class Turn extends Movement {
 		init();
 	}
 
-	@Override
 	public Pose getPose(double elapsedTime) {
 		double t = displacement!=0 ? calculator.getDisplacement(elapsedTime) / displacement : 0;
 		t = Math.abs(t);
@@ -32,26 +39,25 @@ public class Turn extends Movement {
 		return new Pose(endPose.getX(), endPose.getY(), theading);
 	}
 	
-	@Override
 	public Pose getVelocityPose(double elapsedTime) {
 		return new Pose(0, 0, -calculator.getVelocity(elapsedTime));
 	}
 
-	@Override
 	public double getTime() {
 		return time;
 	}
 	
-	@Override
 	public Pose getStartPose() {
 		return startPose;
 	}
 
-	@Override
 	public Pose getEndPose() {
 		return endPose;
 	}
 	
+	/**
+	 * Calculates total time.
+	 */
 	private void init() {
 
 		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;

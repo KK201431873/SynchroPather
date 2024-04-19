@@ -3,70 +3,112 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import movement.util.MovementType;
 import movement.util.Pose;
 
+/**
+ * Builder pattern object that can create and store the anchor Poses of a CRSpline.
+ */
 public class CRSplineBuilder {
 
-	public MovementType MOVEMENT_TYPE;
-	private ArrayList<Pose> poses = new ArrayList<>();
+	private ArrayList<Pose> anchors = new ArrayList<>();
 
-	// instantiation overloads
 	
+	/////////////////////////////
+	// INSTANTIATION OVERLOADS //
+	/////////////////////////////
+	
+	/**
+	 * Creates a new CRSplineBuilder object.
+	 */
 	public CRSplineBuilder() {
 		this(new ArrayList<>());
 	}
 
-	public CRSplineBuilder(double x, double y, double degreesHeading) {
-		this(new Pose(x, y, degreesHeading * Math.PI / 180.0));
+	/**
+	 * Creates a new CRSplineBuilder object with the given start Pose.
+	 * @param x inches
+	 * @param y inches
+	 * @param heading degrees
+	 */
+	public CRSplineBuilder(double x, double y, double heading) {
+		this(new Pose(x, y, heading * Math.PI / 180.0));
 	}
-	
+
+	/**
+	 * Creates a new CRSplineBuilder object with the given start Pose.
+	 * @param startPose
+	 */
 	public CRSplineBuilder(Pose startPose) {
 		this(new ArrayList<>(Stream.of(startPose).collect(Collectors.toList())));
 	}
-	
+
+	/**
+	 * Creates a new CRSplineBuilder object with the anchor Poses of the given CRSpline.
+	 * @param spline
+	 */
 	public CRSplineBuilder(CRSpline spline) {
-		this(spline.getPoses());
-	}
-		
-	public CRSplineBuilder(ArrayList<Pose> poses) {
-		this.MOVEMENT_TYPE = MovementType.DRIVE;
-		this.poses = poses;
-	}
-	
-	// primary methods
-	
-	public CRSpline build() {
-		return new CRSpline(this.poses);
+		this(spline.getAnchors());
 	}
 	
 	/**
-	 * Adds a pose to the end of this CRSpline.
-	 * 
-	 * @param x  The pose's x position
-	 * @param y  The pose's y position
-	 * @param degreesHeading  The pose's heading in degrees
+	 * Creates a new CRSplineBuilder object with the given anchor Poses.
+	 * @param anchors
 	 */
-	public CRSplineBuilder addPose(double x, double y, double degreesHeading) {
-		addPose(new Pose(x, y, degreesHeading * Math.PI / 180.0));
-		return this;
+	public CRSplineBuilder(ArrayList<Pose> anchors) {
+		this.anchors = anchors;
 	}
 	
+	
+	/////////////////////
+	// PRIMARY METHODS //
+	/////////////////////
+	
+	/**
+	 * Builds this CRSplineBuilder object into a CRSpline object.
+	 * @return the built CRSpline object.
+	 */
+	public CRSpline build() {
+		return new CRSpline(this.anchors);
+	}
+	
+	/**
+	 * Appends the given anchor Pose to the end of this CRSpline.
+	 * @param x inches
+	 * @param y inches
+	 * @param heading degrees
+	 * @return this CRSplineBuilder.
+	 */
+	public CRSplineBuilder addPose(double x, double y, double heading) {
+		return addPose(new Pose(x, y, heading * Math.PI / 180.0));
+	}
+	
+	/**
+	 * Appends the given anchor Pose to the end of this CRSpline.
+	 * @param pose
+	 * @return this CRSplineBuilder.
+	 */
 	public CRSplineBuilder addPose(Pose pose) {
 		ArrayList<Pose> poses = new ArrayList<>();
 		poses.add(pose);
-		addPoses(poses);
-		return this;
+		return addPoses(poses);
 	}
 
+	/**
+	 * Appends the given anchor Poses to the end of this CRSpline.
+	 * @param spline
+	 * @return this CRSplineBuilder.
+	 */
 	public CRSplineBuilder addSpline(CRSpline spline) {
-		addPoses(spline.getPoses());
-		return this;
+		return addPoses(spline.getAnchors());
 	}
 
-	public CRSplineBuilder addPoses(ArrayList<Pose> concatPoses) {
-		poses.addAll(concatPoses);
-		
+	/**
+	 * Appends the given anchor Poses to the end of this CRSpline.
+	 * @param anchors
+	 * @return this CRSplineBuilder.
+	 */
+	public CRSplineBuilder addPoses(ArrayList<Pose> anchors) {
+		this.anchors.addAll(anchors);
 		return this;
 	}
 }
