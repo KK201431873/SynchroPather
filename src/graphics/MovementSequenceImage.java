@@ -9,12 +9,12 @@ import java.awt.geom.Line2D;
 
 import javax.swing.JComponent;
 
-import movement.MovementSequence;
-import movement.movements.CRSpline;
-import movement.movements.StraightLine;
-import movement.util.Movement;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import ll_constants.DriveConstants;
+import ll_movement.MovementSequence;
+import ll_movement.movements.CRSpline;
+import ll_movement.movements.StraightLine;
+import ll_movement.util.Movement;
+import ll_movement.util.Pose;
 
 @SuppressWarnings("serial")
 public class MovementSequenceImage extends JComponent {

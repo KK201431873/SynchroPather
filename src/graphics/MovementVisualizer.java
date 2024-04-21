@@ -9,9 +9,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import movement.MovementSequence;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import ll_constants.DriveConstants;
+import ll_movement.MovementSequence;
+import ll_movement.util.Pose;
 
 /**
  * Object that utilizes Java AWT to visualize a MovementSequence in a pop-up window.

@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
-import movement.util.Pose;
+import ll_movement.util.Pose;
 
 @SuppressWarnings("serial")
 public class RobotImage extends JComponent {

@@ -1,10 +1,10 @@
 
 import graphics.MovementVisualizer;
-import movement.MovementSequence;
-import movement.MovementSequenceBuilder;
-import movement.movements.CRSpline;
-import movement.movements.CRSplineBuilder;
-import movement.util.Pose;
+import ll_movement.MovementSequence;
+import ll_movement.MovementSequenceBuilder;
+import ll_movement.movements.CRSpline;
+import ll_movement.movements.CRSplineBuilder;
+import ll_movement.util.Pose;
 
 public class Main {
 
@@ -63,7 +63,7 @@ public class Main {
 				.build();
 		
 		// put the MovementSequence into a visualizer object, with timeFactor between 0 and 1 representing the speed of the visualizer
-		double timeFactor = 1;
+		double timeFactor = 0.1;
 		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor);
 		
 		// start visualizer

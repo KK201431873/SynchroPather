@@ -1,14 +1,14 @@
-package movement.movements;
+package ll_movement.movements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import movement.util.BoundedDisplacementCalculator;
-import movement.util.DisplacementCalculator;
-import movement.util.Movement;
-import movement.util.MovementType;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import ll_constants.DriveConstants;
+import ll_movement.util.BoundedDisplacementCalculator;
+import ll_movement.util.DisplacementCalculator;
+import ll_movement.util.Movement;
+import ll_movement.util.MovementType;
+import ll_movement.util.Pose;
 
 /**
  * Movement containing the motion plan for a (Catmull-Rom "CR") spline trajectory with respect to elapsed time.

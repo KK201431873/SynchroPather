@@ -1,13 +1,13 @@
-package movement;
+package ll_movement;
 
 import java.util.ArrayList;
 
-import movement.movements.CRSpline;
-import movement.movements.Delay;
-import movement.movements.StraightLine;
-import movement.movements.Turn;
-import movement.util.Movement;
-import movement.util.Pose;
+import ll_movement.movements.CRSpline;
+import ll_movement.movements.Delay;
+import ll_movement.movements.StraightLine;
+import ll_movement.movements.Turn;
+import ll_movement.util.Movement;
+import ll_movement.util.Pose;
 
 /**
  * Builder pattern object that can create and store the Movements of a MovementSequence.

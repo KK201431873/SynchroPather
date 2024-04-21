@@ -1,8 +1,8 @@
-package movement;
+package ll_movement;
 import java.util.ArrayList;
 
-import movement.util.Movement;
-import movement.util.Pose;
+import ll_movement.util.Movement;
+import ll_movement.util.Pose;
 
 /**
  * Object containing the motion plan for a sequence of Movements with respect to elapsed time.

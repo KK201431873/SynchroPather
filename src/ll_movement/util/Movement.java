@@ -1,4 +1,4 @@
-package movement.util;
+package ll_movement.util;
 
 /**
  * Object containing the motion plan of a single Movement with respect to elapsed time.

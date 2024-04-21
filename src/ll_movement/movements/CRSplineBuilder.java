@@ -1,9 +1,9 @@
-package movement.movements;
+package ll_movement.movements;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import movement.util.Pose;
+import ll_movement.util.Pose;
 
 /**
  * Builder pattern object that can create and store the anchor Poses of a CRSpline.

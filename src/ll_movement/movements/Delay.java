@@ -1,7 +1,7 @@
-package movement.movements;
+package ll_movement.movements;
 
-import movement.util.Movement;
-import movement.util.Pose;
+import ll_movement.util.Movement;
+import ll_movement.util.Pose;
 
 /**
  * Movement representing a delay command.

@@ -1,4 +1,4 @@
-package movement.util;
+package ll_movement.util;
 
 /**
  * Object containing three coordinates representing the global position of a robot on the field.
