@@ -3,6 +3,7 @@ package movement;
 import java.util.ArrayList;
 
 import movement.movements.CRSpline;
+import movement.movements.Delay;
 import movement.movements.StraightLine;
 import movement.movements.Turn;
 import movement.util.Movement;
@@ -67,6 +68,16 @@ public class MovementSequenceBuilder {
 	 */
 	public MovementSequenceBuilder addMovement(Movement movement) {
 		add(movement);
+		return this;
+	}
+	
+	/**
+	 * Appends a Delay with the given delay value to the end of this MovementSequenceBuilder.
+	 * @param delay seconds
+	 * @return this MovementSequenceBuilder.
+	 */
+	public MovementSequenceBuilder waitSeconds(double delay) {
+		add(new Delay(lastPose, delay));
 		return this;
 	}
 
@@ -247,7 +258,7 @@ public class MovementSequenceBuilder {
 	 * @param heading degrees
 	 * @return this MovementSequenceBuilder.
 	 */
-	public MovementSequenceBuilder goStraightTo(double x, double y, double heading) {
+	public MovementSequenceBuilder strafeTo(double x, double y, double heading) {
 		add(new StraightLine(lastPose, new Pose(x, y, normalizeAngle(heading * Math.PI / 180.0))));
 		return this; 
 	}

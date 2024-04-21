@@ -52,17 +52,18 @@ public class Main {
 				.addCRSpline(spline5)
 				.rightAndTurn(24, 180)
 				.backward(10)
-				.goStraightTo(0, 0, 0)
-				.goStraightTo(48, 60, 90)
-				.goStraightTo(-48, 60, 180)
-				.goStraightTo(-48, -60, 270)
-				.goStraightTo(48, -60, 360)
-				.goStraightTo(0,0,0)
+				.strafeTo(0, 0, 0)
+				.waitSeconds(3)
+				.strafeTo(48, 60, 90)
+				.strafeTo(-48, 60, 180)
+				.strafeTo(-48, -60, 270)
+				.strafeTo(48, -60, 360)
+				.strafeTo(0,0,0)
 				.addCRSpline(returnToStart)
 				.build();
 		
 		// put the MovementSequence into a visualizer object, with timeFactor between 0 and 1 representing the speed of the visualizer
-		double timeFactor = 0.3;
+		double timeFactor = 1;
 		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor);
 		
 		// start visualizer

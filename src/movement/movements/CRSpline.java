@@ -11,7 +11,7 @@ import movement.util.Pose;
 import teamcode_util.DriveConstants;
 
 /**
- * Object containing the motion plan for a (Catmull-Rom "CR") spline trajectory with respect to elapsed time.
+ * Movement containing the motion plan for a (Catmull-Rom "CR") spline trajectory with respect to elapsed time.
  */
 public class CRSpline extends Movement {
 

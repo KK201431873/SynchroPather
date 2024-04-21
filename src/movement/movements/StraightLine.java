@@ -6,7 +6,7 @@ import movement.util.Pose;
 import teamcode_util.DriveConstants;
 
 /**
- * Object containing the motion plan for following a linear trajectory with respect to elapsed time.
+ * Movement containing the motion plan for following a linear trajectory with respect to elapsed time.
  */
 public class StraightLine extends Movement{
 	
