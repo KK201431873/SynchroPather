@@ -184,9 +184,10 @@ public class MovementVisualizer {
 			Pose lookaheadPose = sequence.getPose(lookaheadTime);
 
 			DecimalFormat df = new DecimalFormat("0.0");
-			x.setText(String.format("X:%5s (%5s)", df.format(currentPose.getX()), df.format(lookaheadPose.getX())));
-			y.setText(String.format("Y:%5s (%5s)", df.format(currentPose.getY()), df.format(lookaheadPose.getY())));
-			h.setText(String.format("H:%6s (%6s)", df.format(currentPose.getHeading()*180/Math.PI), df.format(lookaheadPose.getHeading()*180/Math.PI)));
+			DecimalFormat la = new DecimalFormat("+0.0;-0.0");
+			x.setText(String.format("X:%5s  %s", df.format(currentPose.getX()), la.format(lookaheadPose.getX()-currentPose.getX())));
+			y.setText(String.format("Y:%5s  %s", df.format(currentPose.getY()), la.format(lookaheadPose.getY()-currentPose.getY())));
+			h.setText(String.format("H:%6s %s", df.format( currentPose.getHeading()*180/Math.PI), la.format(normalizeAngle(lookaheadPose.getHeading()-currentPose.getHeading())*180/Math.PI)));
 			
 			robotImage.setPose(currentPose, lookaheadPose, elapsedTime);
 
@@ -268,6 +269,20 @@ public class MovementVisualizer {
 	 */
 	private static double bound(double x, double lower, double upper) {
 		return Math.max(lower, Math.min(upper, x));
+	}
+
+	/**
+	 * Normalizes a given angle to [-pi,pi) radians.
+	 * @param degrees the given angle in radians.
+	 * @return the normalized angle in radians.
+	 */
+	private double normalizeAngle(double degrees) {
+	    double angle = degrees;
+	    while (angle <= -Math.PI) //TODO: opMode.opModeIsActive() && 
+	        angle += 2*Math.PI;
+	    while (angle > Math.PI)
+	        angle -= 2*Math.PI;
+	    return angle;
 	}
 	
 }

@@ -31,6 +31,6 @@ public final class DriveConstants {
 	/**
 	 *  The level of detail used in calculating splines, between 0 and 1 (lower = more calculations, more detail).
 	 */
-	public static final double delta_t = 0.01;
+	public static final double delta_t = 0.005;
 	
 }

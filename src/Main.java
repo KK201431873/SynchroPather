@@ -62,7 +62,7 @@ public class Main {
 				.build();
 		
 		// put the MovementSequence into a visualizer object, with timeFactor between 0 and 1 representing the speed of the visualizer
-		double timeFactor = 1;
+		double timeFactor = 0.3;
 		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor);
 		
 		// start visualizer
@@ -111,7 +111,7 @@ public class Main {
 		y += dt * yv;
 		h = normalizeAngle(h + dt * hv);
 		System.out.println(String.format("\n\n\n\n\n\n\n\n\n\n\n\n\nRUNTIME [%ss]/[%ss] \n[position = getPose()] \n  X %s𝘪𝘯 \n  Y %s𝘪𝘯 \n  H %s° \n[position = ∫ν𝒹𝓉] \n  X %s𝘪𝘯 \n  Y %s𝘪𝘯 \n  H %s° \n[velocity] \n  X %s𝘪𝘯/𝘴 \n  Y %s𝘪𝘯/𝘴 \n  H %s°/𝘴 \n[accel] \n  m %s𝘪𝘯/𝘴/𝘴 \n  θ %s° \n  h %s𝘳𝘢𝘥/𝘴/𝘴 \n[maxAccel] \n  m %s𝘪𝘯/𝘴/𝘴 \n  θ %s° \n  @ (%s𝘪𝘯, %s𝘪𝘯)", 
-				Math.round(visualizer.getElapsedTime()*100)/100.0, Math.round(visualizer.getTime()*100)/100.0,
+				Math.round(visualizer.getElapsedTime()*10000)/10000.0, Math.round(visualizer.getTime()*10000)/10000.0,
 				Math.round(pose.getX()*100)/100.0, Math.round(pose.getY()*100)/100.0, Math.round(pose.getHeading()*180/Math.PI*100)/100.0, 
 				Math.round(x*100)/100.0, Math.round(y*100)/100.0, Math.round(h*100)/100.0, 
 				Math.round(xv*100)/100.0, Math.round(yv*100)/100.0, Math.round(hv*100)/100.0, 
