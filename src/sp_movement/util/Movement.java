@@ -1,4 +1,4 @@
-package ll_movement.util;
+package sp_movement.util;
 
 /**
  * Object containing the motion plan of a single Movement with respect to elapsed time.
@@ -38,5 +38,10 @@ public abstract class Movement {
 	 * @return the Pose reached by the end of this Movement.
 	 */
 	public abstract Pose getEndPose();
+	
+	/**
+	 * @return a String representing the class name of this Movement.
+	 */
+	public abstract String getName();
 
 }

@@ -1,4 +1,4 @@
-package ll_constants;
+package sp_constants;
 
 /**
  * A static class used by the robot to reference important kinematic and algorithmic tuning values.

@@ -1,4 +1,4 @@
-package graphics;
+package sp_graphics;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -9,9 +9,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import ll_constants.DriveConstants;
-import ll_movement.MovementSequence;
-import ll_movement.util.Pose;
+import sp_constants.DriveConstants;
+import sp_movement.MovementSequence;
+import sp_movement.util.Movement;
+import sp_movement.util.Pose;
 
 /**
  * Object that utilizes Java AWT to visualize a MovementSequence in a pop-up window.
@@ -21,9 +22,10 @@ public class MovementVisualizer {
 	private MovementSequence sequence;
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
-	private JLabel x, y, h;
+	private JLabel x, y, h, name, timeLabel;
 	private double time, elapsedTime, lastTime, deltaTime, lookahead;
 	private Pose currentVelocity, currentPose;
+	private Movement currentMovement;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
 	private final double timeFactor;
@@ -96,23 +98,41 @@ public class MovementVisualizer {
 		running = true;
 		
 		// init frame
-        frame = new JFrame("Spline Sim");
+        frame = new JFrame("SynchroPather");
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setIconImage(new ImageIcon("src/graphics/DRIVE.png").getImage());
+        frame.setIconImage(new ImageIcon("src/sp_graphics/DRIVE.png").getImage());
         
         // creating coordinate box
         JPanel textArea = new JPanel();   
         textArea.setLayout(null);
         textArea.setBackground(new Color(224, 224, 224, 96));  
-        textArea.setBounds(0, 0, 11*fontSize, (int)(3.75*fontSize));
+        textArea.setBounds(0, 0, 11*fontSize, (int)(5.75*fontSize));
         frame.add(textArea);
+        
+        timeLabel = new JLabel("[-s/-s]");
+        timeLabel.setVerticalAlignment(JLabel.TOP);
+        timeLabel.setHorizontalAlignment(JLabel.LEFT);
+        timeLabel.setSize(500, 50);
+        timeLabel.setLocation(10, 0);
+        timeLabel.setForeground(Color.gray);
+        timeLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
+        textArea.add(timeLabel);
+        
+        name = new JLabel("-");
+        name.setVerticalAlignment(JLabel.TOP);
+        name.setHorizontalAlignment(JLabel.LEFT);
+        name.setSize(500, 50);
+        name.setLocation(10, fontSize);
+        name.setForeground(Color.gray);
+        name.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
+        textArea.add(name);
         
         x = new JLabel("X: -");
         x.setVerticalAlignment(JLabel.TOP);
         x.setHorizontalAlignment(JLabel.LEFT);
         x.setSize(500, 50);
-        x.setLocation(10, 0);
+        x.setLocation(10, 2*fontSize);
         x.setForeground(Color.gray);
         x.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(x);
@@ -121,7 +141,7 @@ public class MovementVisualizer {
         y.setVerticalAlignment(JLabel.TOP);
         y.setHorizontalAlignment(JLabel.LEFT);
         y.setSize(500, 50);
-        y.setLocation(10, fontSize);
+        y.setLocation(10, 3*fontSize);
         y.setForeground(Color.gray);
         y.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(y);
@@ -130,7 +150,7 @@ public class MovementVisualizer {
         h.setVerticalAlignment(JLabel.TOP);
         h.setHorizontalAlignment(JLabel.LEFT);
         h.setSize(500, 50);
-        h.setLocation(10, 2*fontSize);
+        h.setLocation(10, 4*fontSize);
         h.setForeground(Color.gray);
         h.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(h);
@@ -180,15 +200,18 @@ public class MovementVisualizer {
 			);
 
 			currentPose = sequence.getPose(elapsedTime);
+			currentMovement = sequence.getMovement(elapsedTime);
 			double lookaheadTime = (elapsedTime + Math.min(time, elapsedTime + lookahead)) / 2d;
 			Pose lookaheadPose = sequence.getPose(lookaheadTime);
 
 			DecimalFormat df = new DecimalFormat("0.0");
 			DecimalFormat la = new DecimalFormat("+0.0;-0.0");
+			timeLabel.setText(String.format("[%ss/%ss]", Math.round(elapsedTime*10000)/10000.0, Math.round(time*10000)/10000.0));
+			name.setText(currentMovement.getName());
 			x.setText(String.format("X:%5s  %s", df.format(currentPose.getX()), la.format(lookaheadPose.getX()-currentPose.getX())));
 			y.setText(String.format("Y:%5s  %s", df.format(currentPose.getY()), la.format(lookaheadPose.getY()-currentPose.getY())));
-			h.setText(String.format("H:%6s %s", df.format( currentPose.getHeading()*180/Math.PI), la.format(normalizeAngle(lookaheadPose.getHeading()-currentPose.getHeading())*180/Math.PI)));
-			
+			h.setText(String.format("H:%6s %s", df.format(currentPose.getHeading()*180/Math.PI), la.format(normalizeAngle(lookaheadPose.getHeading()-currentPose.getHeading())*180/Math.PI)));
+						
 			robotImage.setPose(currentPose, lookaheadPose, elapsedTime);
 
 	        frame.repaint();

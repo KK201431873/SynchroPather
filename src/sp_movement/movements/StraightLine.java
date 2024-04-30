@@ -1,9 +1,10 @@
-package ll_movement.movements;
+package sp_movement.movements;
 
-import ll_constants.DriveConstants;
-import ll_movement.util.DisplacementCalculator;
-import ll_movement.util.Movement;
-import ll_movement.util.Pose;
+import sp_constants.DriveConstants;
+import sp_movement.util.DisplacementCalculator;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
 /**
  * Movement containing the motion plan for following a linear trajectory with respect to elapsed time.
@@ -21,6 +22,7 @@ public class StraightLine extends Movement{
 	 * @param endPose
 	 */
 	public StraightLine(Pose startPose, Pose endPose) {
+		this.MOVEMENT_TYPE = MovementType.DRIVE;
 		this.startPose = startPose;
 		this.endPose = endPose;
 		init();
@@ -63,6 +65,10 @@ public class StraightLine extends Movement{
 
 	public Pose getEndPose() {
 		return endPose;
+	}
+	
+	public String getName() {
+		return "StraightLine";
 	}
 	
 	/**

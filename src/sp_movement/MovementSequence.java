@@ -1,8 +1,8 @@
-package ll_movement;
+package sp_movement;
 import java.util.ArrayList;
 
-import ll_movement.util.Movement;
-import ll_movement.util.Pose;
+import sp_movement.util.Movement;
+import sp_movement.util.Pose;
 
 /**
  * Object containing the motion plan for a sequence of Movements with respect to elapsed time.
@@ -49,6 +49,10 @@ public class MovementSequence extends Movement {
 
 	public Pose getEndPose() {
 		return getLength()>0 ? movements[getLength()-1].getEndPose() : null;
+	}
+	
+	public String getName() {
+		return "MovementSequence";
 	}
 	
 	/**

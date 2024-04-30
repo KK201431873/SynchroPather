@@ -1,7 +1,8 @@
-package ll_movement.movements;
+package sp_movement.movements;
 
-import ll_movement.util.Movement;
-import ll_movement.util.Pose;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
 /**
  * Movement representing a delay command.
@@ -17,6 +18,7 @@ public class Delay extends Movement {
 	 * @param seconds 
 	 */
 	public Delay(Pose pose, double seconds) {
+		this.MOVEMENT_TYPE = MovementType.DELAY;
 		this.pose = pose;
 		this.seconds = seconds;
 	}
@@ -40,6 +42,10 @@ public class Delay extends Movement {
 
 	public Pose getEndPose() {
 		return pose;
+	}
+	
+	public String getName() {
+		return "Delay";
 	}
 	
 }

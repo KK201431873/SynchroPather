@@ -1,4 +1,4 @@
-package graphics;
+package sp_graphics;
 
 
 public class CanvasConstants {

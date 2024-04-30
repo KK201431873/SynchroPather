@@ -1,9 +1,10 @@
-package ll_movement.movements;
+package sp_movement.movements;
 
-import ll_constants.DriveConstants;
-import ll_movement.util.DisplacementCalculator;
-import ll_movement.util.Movement;
-import ll_movement.util.Pose;
+import sp_constants.DriveConstants;
+import sp_movement.util.DisplacementCalculator;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
 /**
  * Movement containing the motion plan for a turn trajectory with respect to elapsed time.
@@ -20,6 +21,7 @@ public class Turn extends Movement {
 	 * @param radians (positive = turn right)
 	 */
 	public Turn(Pose startPose, double radians) {
+		this.MOVEMENT_TYPE = MovementType.DRIVE;
 		this.displacement = -radians;
 		this.startPose = startPose;
 		this.endPose = new Pose(
@@ -53,6 +55,10 @@ public class Turn extends Movement {
 
 	public Pose getEndPose() {
 		return endPose;
+	}
+	
+	public String getName() {
+		return "Turn";
 	}
 	
 	/**

@@ -1,14 +1,14 @@
-package ll_movement.movements;
+package sp_movement.movements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import ll_constants.DriveConstants;
-import ll_movement.util.BoundedDisplacementCalculator;
-import ll_movement.util.DisplacementCalculator;
-import ll_movement.util.Movement;
-import ll_movement.util.MovementType;
-import ll_movement.util.Pose;
+import sp_constants.DriveConstants;
+import sp_movement.util.BoundedDisplacementCalculator;
+import sp_movement.util.DisplacementCalculator;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
 /**
  * Movement containing the motion plan for a (Catmull-Rom "CR") spline trajectory with respect to elapsed time.
@@ -97,6 +97,10 @@ public class CRSpline extends Movement {
 
 	public Pose getEndPose() {
 		return getLength()>0 ? anchors[getLength()-1] : null;
+	}
+	
+	public String getName() {
+		return "CRSpline";
 	}
 	
 	/**

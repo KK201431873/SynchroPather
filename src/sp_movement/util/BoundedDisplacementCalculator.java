@@ -1,4 +1,4 @@
-package ll_movement.util;
+package sp_movement.util;
 
 /**
  * Object that calculates position based on elapsed time from a velocity curve defined by displacement, time, max velocity, and max acceleration.
