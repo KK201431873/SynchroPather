@@ -1,17 +1,27 @@
-package movement.movements;
+package sp_movement.movements;
 
-import movement.util.DisplacementCalculator;
-import movement.util.Movement;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import sp_constants.DriveConstants;
+import sp_movement.util.DisplacementCalculator;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
+/**
+ * Movement containing the motion plan for a turn trajectory with respect to elapsed time.
+ */
 public class Turn extends Movement {
 
 	private double displacement, time;
 	private Pose startPose, endPose;
 	private DisplacementCalculator calculator;
 
+	/**
+	 * Creates a new Turn object with a given starting Pose and turn angle.
+	 * @param startPose
+	 * @param radians (positive = turn right)
+	 */
 	public Turn(Pose startPose, double radians) {
+		this.MOVEMENT_TYPE = MovementType.DRIVE;
 		this.displacement = -radians;
 		this.startPose = startPose;
 		this.endPose = new Pose(
@@ -22,7 +32,6 @@ public class Turn extends Movement {
 		init();
 	}
 
-	@Override
 	public Pose getPose(double elapsedTime) {
 		double t = displacement!=0 ? calculator.getDisplacement(elapsedTime) / displacement : 0;
 		t = Math.abs(t);
@@ -32,26 +41,29 @@ public class Turn extends Movement {
 		return new Pose(endPose.getX(), endPose.getY(), theading);
 	}
 	
-	@Override
 	public Pose getVelocityPose(double elapsedTime) {
 		return new Pose(0, 0, -calculator.getVelocity(elapsedTime));
 	}
 
-	@Override
 	public double getTime() {
 		return time;
 	}
 	
-	@Override
 	public Pose getStartPose() {
 		return startPose;
 	}
 
-	@Override
 	public Pose getEndPose() {
 		return endPose;
 	}
 	
+	public String getName() {
+		return "Turn";
+	}
+	
+	/**
+	 * Calculates total time.
+	 */
 	private void init() {
 
 		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;

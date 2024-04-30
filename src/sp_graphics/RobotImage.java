@@ -1,4 +1,4 @@
-package graphics;
+package sp_graphics;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
-import movement.util.Pose;
+import sp_movement.util.Pose;
 
 @SuppressWarnings("serial")
 public class RobotImage extends JComponent {
@@ -77,7 +77,7 @@ public class RobotImage extends JComponent {
 
         BufferedImage bg = null;
 		try {
-			bg = ImageIO.read(new File("src/graphics/centerstage_field.png"));
+			bg = ImageIO.read(new File("src/sp_graphics/centerstage_field.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

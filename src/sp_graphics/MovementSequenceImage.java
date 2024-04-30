@@ -1,4 +1,4 @@
-package graphics;
+package sp_graphics;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -9,12 +9,12 @@ import java.awt.geom.Line2D;
 
 import javax.swing.JComponent;
 
-import movement.MovementSequence;
-import movement.movements.CRSpline;
-import movement.movements.StraightLine;
-import movement.util.Movement;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import sp_constants.DriveConstants;
+import sp_movement.MovementSequence;
+import sp_movement.movements.CRSpline;
+import sp_movement.movements.StraightLine;
+import sp_movement.util.Movement;
+import sp_movement.util.Pose;
 
 @SuppressWarnings("serial")
 public class MovementSequenceImage extends JComponent {

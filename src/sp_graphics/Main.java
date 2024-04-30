@@ -1,5 +1,5 @@
+package sp_graphics;
 
-import sp_graphics.MovementVisualizer;
 import sp_movement.MovementSequence;
 import sp_movement.MovementSequenceBuilder;
 import sp_movement.movements.CRSpline;
@@ -63,7 +63,7 @@ public class Main {
 				.build();
 		
 		// put the MovementSequence into a visualizer object, with timeFactor between 0 and 1 representing the speed of the visualizer
-		double timeFactor = 0.1;
+		double timeFactor = 1;
 		MovementVisualizer visualizer1 = new MovementVisualizer(seq1, timeFactor);
 		
 		// start visualizer

@@ -1,45 +1,58 @@
-package movement.movements;
+package sp_movement.movements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import movement.util.BoundedDisplacementCalculator;
-import movement.util.DisplacementCalculator;
-import movement.util.Movement;
-import movement.util.MovementType;
-import movement.util.Pose;
-import teamcode_util.DriveConstants;
+import sp_constants.DriveConstants;
+import sp_movement.util.BoundedDisplacementCalculator;
+import sp_movement.util.DisplacementCalculator;
+import sp_movement.util.Movement;
+import sp_movement.util.MovementType;
+import sp_movement.util.Pose;
 
+/**
+ * Movement containing the motion plan for a (Catmull-Rom "CR") spline trajectory with respect to elapsed time.
+ */
 public class CRSpline extends Movement {
 
 	private double distance, time;
 	private double[] lengths, times, partialTimes, props, partialProps;
-	private Pose[] poses;
+	private Pose[] anchors;
 	private DisplacementCalculator dispCalculator;
 	private BoundedDisplacementCalculator[] turnCalculators;
 	private double[] correctedHeadings;
 
-	public CRSpline(ArrayList<Pose> poses) {
+	/**
+	 * Creates a new CRSpline object with the given anchor Poses.
+	 * @param anchors
+	 */
+	public CRSpline(ArrayList<Pose> anchors) {
 		this.MOVEMENT_TYPE = MovementType.DRIVE;
-		this.poses = poses.stream().toArray(Pose[]::new);
+		this.anchors = anchors.stream().toArray(Pose[]::new);
 		init();
 	}
-	
-	// primary methods
 
-	public double getLength() {
-		return poses.length;
+	/**
+	 * @return the number of anchor Poses in this CRSpline.
+	 */
+	public int getLength() {
+		return anchors.length;
 	}
 	
+	/**
+	 * @return the total distance traveled by this CRSpline, in inches.
+	 */
 	public double getDistance() {
 		return distance;
 	}
 	
-	public ArrayList<Pose> getPoses() {
-		return new ArrayList<>(Arrays.asList(poses));
+	/**
+	 * @return the ArrayList of anchor Poses in this CRSpline.
+	 */
+	public ArrayList<Pose> getAnchors() {
+		return new ArrayList<>(Arrays.asList(anchors));
 	}
 
-	@Override
 	public Pose getPose(double elapsedTime) {
 		int n = getLocalSegment(elapsedTime);
 		double p_r = getLocalProportion(elapsedTime);
@@ -54,7 +67,6 @@ public class CRSpline extends Movement {
 		return new Pose(pose.getX(), pose.getY(), heading);
 	}
 
-	@Override
 	public Pose getVelocityPose(double elapsedTime) {
 		// get theta
 		int n = getLocalSegment(elapsedTime);
@@ -75,35 +87,36 @@ public class CRSpline extends Movement {
 		);
 	}
 	
-	@Override
 	public double getTime() {
 		return time;
 	}
 	
-	@Override
 	public Pose getStartPose() {
-		return poses.length>0 ? poses[0] : null;
+		return getLength()>0 ? anchors[0] : null;
 	}
 
-	@Override
 	public Pose getEndPose() {
-		return poses.length>0 ? poses[poses.length-1] : null;
+		return getLength()>0 ? anchors[getLength()-1] : null;
 	}
 	
-	public Pose getPose(int index) {
-		if (index < 0 || poses.length-1 < index)
-			throw new RuntimeException(String.format("Index %s outside of [%s,%s]", index, 0, poses.length-1));
-		return poses[index];
+	public String getName() {
+		return "CRSpline";
 	}
 	
+	/**
+	 * Gets the Pose at parameter 0<=t<=1 of the given spline segment.
+	 * @param segment
+	 * @param t
+	 * @return the Pose within the segment.
+	 */
 	public Pose getPose(int segment, double t) {
-		if (segment < 0 || poses.length-2 < segment)
-			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.length-2));
+		if (segment < 0 || getLength()-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, getLength()-2));
 
-		Pose p0 = poses[Math.max(0, segment-1)];
-		Pose p1 = poses[segment];
-		Pose p2 = poses[segment + 1];
-		Pose p3 = poses[Math.min(poses.length-1, segment+2)];
+		Pose p0 = anchors[Math.max(0, segment-1)];
+		Pose p1 = anchors[segment];
+		Pose p2 = anchors[segment + 1];
+		Pose p3 = anchors[Math.min(getLength()-1, segment+2)];
 		
 		double tt = t*t;
 		double ttt = tt*t;
@@ -119,14 +132,20 @@ public class CRSpline extends Movement {
 		return new Pose(tx, ty, 0);
 	}
 	
+	/**
+	 * Gets the derivative at parameter t (between 0 and 1) of the given spline segment.
+	 * @param segment
+	 * @param t
+	 * @return the Pose representation of the derivative within the segment.
+	 */
 	public Pose getDerivative(int segment, double t) {
-		if (segment < 0 || poses.length-2 < segment)
-			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, poses.length-2));
+		if (segment < 0 || getLength()-2 < segment)
+			throw new RuntimeException(String.format("Segment index %s outside of [%s,%s]", segment, 0, getLength()-2));
 
-		Pose p0 = poses[Math.max(0, segment-1)];
-		Pose p1 = poses[segment];
-		Pose p2 = poses[segment + 1];
-		Pose p3 = poses[Math.min(poses.length-1, segment+2)];
+		Pose p0 = anchors[Math.max(0, segment-1)];
+		Pose p1 = anchors[segment];
+		Pose p2 = anchors[segment + 1];
+		Pose p3 = anchors[Math.min(getLength()-1, segment+2)];
 		
 		double tt = t*t;
 
@@ -141,6 +160,11 @@ public class CRSpline extends Movement {
 		return new Pose(tx, ty, 0);
 	}
 	
+	/**
+	 * Gets the index of the spline segment being traveled at the given elapsed time.
+	 * @param elapsedTime
+	 * @return the index of the spline segment.
+	 */
 	public int getLocalSegment(double elapsedTime) {
 		elapsedTime = bound(elapsedTime, 0, time);
 		
@@ -153,6 +177,11 @@ public class CRSpline extends Movement {
 		return n;
 	}
 	
+	/**
+	 * Gets the proportion (between 0 and 1) of distance traveled within the local spline segment at the given elapsed time.
+	 * @param elapsedTime
+	 * @return the proportion of distance traveled.
+	 */
 	public double getLocalProportion(double elapsedTime) {
 		double dx = dispCalculator.getDisplacement(elapsedTime);
 		int n = getLocalSegment(elapsedTime);
@@ -171,27 +200,19 @@ public class CRSpline extends Movement {
 		return p_r;
 	}
 	
-	public String toString() {
-		String res = "[";
-		for (int i = 0; i < poses.length; i++)
-			res += String.format("%s%s", poses[i], (i==poses.length-1 ? "" : ", "));
-		return res + "]";
-	}
-	
-	private static double bound(double x, double lower, double upper) {
-		return Math.max(lower, Math.min(upper, x));
-	}
-	
+	/**
+	 * Calculates total time, total distance, and corrected headings.
+	 */
 	private void init() {
 		
-		lengths = new double[Math.max(0, poses.length-1)];
+		lengths = new double[Math.max(0, anchors.length-1)];
 
 		// calculate distance
 		distance = 0;
 		double delta_t = DriveConstants.delta_t;
-		double x = poses[0].getX();
-		double y = poses[0].getY();
-		for (int i = 0; i < poses.length-1; i++) {
+		double x = anchors[0].getX();
+		double y = anchors[0].getY();
+		for (int i = 0; i < anchors.length-1; i++) {
 			double length = 0;
 			for (double t = 0; t <= 1; t += delta_t) {
 				// integrate distances over time
@@ -208,15 +229,15 @@ public class CRSpline extends Movement {
 		dispCalculator = new DisplacementCalculator(distance, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
 		time = dispCalculator.getTime();
 
-		turnCalculators = new BoundedDisplacementCalculator[Math.max(0, poses.length-1)];
+		turnCalculators = new BoundedDisplacementCalculator[Math.max(0, anchors.length-1)];
 		
-		times = new double[Math.max(0, poses.length-1)];
-		partialTimes = new double[Math.max(0, poses.length-1)];
-		props = new double[Math.max(0, poses.length-1)];
-		partialProps = new double[Math.max(0, poses.length-1)];
+		times = new double[Math.max(0, anchors.length-1)];
+		partialTimes = new double[Math.max(0, anchors.length-1)];
+		props = new double[Math.max(0, anchors.length-1)];
+		partialProps = new double[Math.max(0, anchors.length-1)];
 		
-		correctedHeadings = new double[poses.length];
-		correctedHeadings[0] = poses[0].getHeading();
+		correctedHeadings = new double[anchors.length];
+		correctedHeadings[0] = anchors[0].getHeading();
 		
 		// calculate props, time
 		double partialLength = 0;
@@ -235,14 +256,14 @@ public class CRSpline extends Movement {
 		}
 		
 		// create turn calculators
-		double h = poses[0].getHeading();
-		double corrected_h = poses[0].getHeading();
+		double h = anchors[0].getHeading();
+		double corrected_h = anchors[0].getHeading();
 		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
 		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
 		for (int i = 0; i < lengths.length; i++) {
 			// create turn calculator
 			int index = i;
-			double corrected_delta_h = normalizeAngle(poses[i+1].getHeading() - corrected_h);
+			double corrected_delta_h = normalizeAngle(anchors[i+1].getHeading() - corrected_h);
 			
 			// skip if no change in heading
 			if (corrected_delta_h == 0) {
@@ -253,7 +274,7 @@ public class CRSpline extends Movement {
 			
 			// get max time available for completing turn
 			double maxTime = 0;
-			double delta_h = normalizeAngle(poses[i+1].getHeading() - h);
+			double delta_h = normalizeAngle(anchors[i+1].getHeading() - h);
 			do {
 				// get change in heading since last
 				h += delta_h;
@@ -265,7 +286,7 @@ public class CRSpline extends Movement {
 				
 				i++;
 				if (i == lengths.length) break;
-				delta_h = normalizeAngle(poses[i+1].getHeading() - h);
+				delta_h = normalizeAngle(anchors[i+1].getHeading() - h);
 			}
 			while (i < lengths.length && delta_h == 0);
 			i--;
@@ -284,11 +305,25 @@ public class CRSpline extends Movement {
 			corrected_h += turnCalculators[index].getTotalDisplacement();
 			correctedHeadings[i+1] = corrected_h;
 		}
-
-		// debug print
-//		for (double i : correctedHeadings) System.out.print(i+" ");
-//		System.out.println();
 		
+	}
+	
+	public String toString() {
+		String res = "[";
+		for (int i = 0; i < getLength(); i++)
+			res += String.format("%s%s", anchors[i], (i==getLength()-1 ? "" : ", "));
+		return res + "]";
+	}
+
+	/**
+	 * Clips the input x between a given lower and upper bound.
+	 * @param x
+	 * @param lower
+	 * @param upper
+	 * @return the clipped value of x.
+	 */
+	private static double bound(double x, double lower, double upper) {
+		return Math.max(lower, Math.min(upper, x));
 	}
 
     /**

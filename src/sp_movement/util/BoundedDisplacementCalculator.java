@@ -1,10 +1,20 @@
-package movement.util;
+package sp_movement.util;
 
+/**
+ * Object that calculates position based on elapsed time from a velocity curve defined by displacement, time, max velocity, and max acceleration.
+ */
 public class BoundedDisplacementCalculator {
 
 	private double distance, time, sign;
 	private double MV, MA;
-	
+
+	/**
+	 * Creates a new BoundedDisplacementCalculator with a given target, time, and kinematic constraints.
+	 * @param targetDisplacement
+	 * @param targetTime
+	 * @param MV
+	 * @param MA
+	 */
 	public BoundedDisplacementCalculator(double targetDisplacement, double targetTime, double MV, double MA) {
 		this.sign = Math.signum(targetDisplacement);
 		this.distance = Math.abs(targetDisplacement);
@@ -13,27 +23,33 @@ public class BoundedDisplacementCalculator {
 		this.MA = MA;
 		init();
 	}
-	
+
+	/**
+	 * @return the absolute value of the target displacement.
+	 */
 	public double getTotalDistance() {
 		return distance;
 	}
-	
+
+	/**
+	 * @return the target displacement.
+	 */
 	public double getTotalDisplacement() {
 		return distance * sign;
 	}
-	
+
+	/**
+	 * @return the minimum time needed to reach the target displacement value.
+	 */
 	public double getTime() {
 		return time;
 	}
-	
-	public double getMV() {
-		return MV;
-	}
-	
-	public double getMA() {
-		return MA;
-	}
-	
+
+	/**
+	 * Calculates the displacement at a certain elapsed time.
+	 * @param elapsedTime 
+	 * @return the displacement value the given elapsed time.
+	 */
 	public double getDisplacement(double elapsedTime) {
 		elapsedTime = bound(elapsedTime, 0, time);
 		
@@ -60,7 +76,12 @@ public class BoundedDisplacementCalculator {
 		
 		return displacement;
 	}
-	
+
+	/**
+	 * Calculates the velocity at a certain elapsed time.
+	 * @param elapsedTime 
+	 * @return the velocity value the given elapsed time.
+	 */
 	public double getVelocity(double elapsedTime) {
 		if (distance == 0) return 0;
 		elapsedTime = bound(elapsedTime, 0, time);
@@ -87,7 +108,10 @@ public class BoundedDisplacementCalculator {
 		
 		return velocity;
 	}
-	
+
+	/**
+	 * Calculates max distance, min time, and max velocity.
+	 */
 	public void init() {
 		
 		double T = time;
@@ -106,10 +130,7 @@ public class BoundedDisplacementCalculator {
 		if (distance >= D_max) {
 			// no need to compensate MV
 			distance = D_max;
-		} 
-		
-
-//		System.out.println(distance/MV);
+		}
 
 		// trim time
 		double previousMV = MV;
@@ -121,7 +142,14 @@ public class BoundedDisplacementCalculator {
 			time = Math.sqrt(4*distance/MA);
 		
 	}
-	
+
+	/**
+	 * Clips the input x between a given lower and upper bound.
+	 * @param x
+	 * @param lower
+	 * @param upper
+	 * @return the clipped value of x.
+	 */
 	private static double bound(double x, double lower, double upper) {
 		return Math.max(lower, Math.min(upper, x));
 	}
