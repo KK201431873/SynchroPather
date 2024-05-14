@@ -1,43 +1,47 @@
-package synchropather.systems;
+package synchropather.systems.__util__.superclasses;
+
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.TimeSpan;
 
 /**
  * Object containing the motion plan of a single Movement with respect to elapsed time.
  */
 public abstract class Movement {
-	
-	/**
-	 * The type of Movement.
-	 */
-	public enum MovementType {
-			/**
-			 * A Movement involving the global x and y coordinates.
-			 */
-			TRANSLATION(),
-			
-			/**
-			 * A Movement involving the global heading.
-			 */
-			ROTATION();
 
-			MovementType() {};
-	}
+	/**
+	 * The duration of time this Movement is allotted for.
+	 */
+	protected TimeSpan timeSpan;
 	
 	/**
 	 * The type of this movement.
 	 */
-	public MovementType MOVEMENT_TYPE;
+	public final MovementType movementType;
+	
+	/**
+	 * Creates a new Movement with the given MovementType and TimeSpan.
+	 * @param movementType
+	 * @param timeSpan
+	 */
+	protected Movement(TimeSpan timeSpan, MovementType movementType) {
+		this.movementType = movementType;
+		this.timeSpan = timeSpan;
+	}
 
 
 	/**
 	 * @return the timestamp for when this Movement starts.
 	 */
-	public abstract double getStartTime();
-
+	public double getStartTime() {
+		return timeSpan.getStartTime();
+	}
 
 	/**
 	 * @return the timestamp for when this Movement ends.
 	 */
-	public abstract double getEndTime();
+	public double getEndTime() {
+		return timeSpan.getEndTime();
+	}
 
 	/**
 	 * @return the minimum runtime needed for this Movement.
@@ -47,7 +51,9 @@ public abstract class Movement {
 	/**
 	 * @return the total allotted runtime for this Movement.
 	 */
-	public abstract double getDuration();
+	public double getDuration() {
+		return timeSpan.getDuration();
+	}
 
 	/**
 	 * Returns the robot's desired RobotState in this Movement at the given elapsed time.

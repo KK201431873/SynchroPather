@@ -1,4 +1,4 @@
-package synchropather.graphics;
+package synchropather.toolkit.graphics;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -10,8 +10,8 @@ import java.awt.geom.Line2D;
 import javax.swing.JComponent;
 
 import synchropather.constants.DriveConstants;
-import synchropather.systems.Movement;
-import synchropather.systems.MovementSequence;
+import synchropather.systems.__util__.superclasses.Movement;
+import synchropather.systems.__util__.superclasses.MovementSequence;
 import synchropather.systems.drive.CRSpline;
 import synchropather.systems.drive.PoseState;
 import synchropather.systems.drive.StraightLine;

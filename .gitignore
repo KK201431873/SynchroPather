@@ -1,60 +1,33 @@
-.metadata
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
 local.properties
-.settings/
-.loadpath
-.recommenders
 
-# External tool builders
-.externalToolBuilders/
+# Log/OS Files
+*.log
 
-# Locally stored "Eclipse launch configurations"
-*.launch
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
+# IntelliJ
+*.iml
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
+# Keystore files
+*.jks
+*.keystore
 
-# CDT- autotools
-.autotools
+# Google Services (e.g. APIs or Firebase)
+google-services.json
 
-# Java annotation processor (APT)
-.factorypath
-
-# PDT-specific (PHP Development Tools)
-.buildpath
-
-# sbteclipse plugin
-.target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
-
-# Annotation Processing
-.apt_generated/
-.apt_generated_test/
-
-# Scala IDE specific (Scala & Java development for Eclipse)
-.cache-main
-.scala_dependencies
-.worksheet
-
-# Uncomment this line if you wish to ignore the project description file.
-# Typically, this file would be tracked if it contains build/dependency configurations:
-#.project
+# Android Profiling
+*.hprof

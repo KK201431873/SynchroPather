@@ -1,6 +1,7 @@
 package synchropather.systems.rotation;
 
-import synchropather.systems.RobotState;
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * Object containing a the global heading value of a robot on the field.
@@ -14,7 +15,7 @@ public class RotationState extends RobotState {
 	 * @param heading radians
 	 */
 	public RotationState(double heading) {
-	    this.heading = heading;
+        this.heading = heading;
 	    this.normalizedHeading = normalizeAngle(heading);
 	}
 

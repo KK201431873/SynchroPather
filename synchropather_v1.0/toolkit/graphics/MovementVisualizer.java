@@ -1,4 +1,4 @@
-package synchropather.graphics;
+package synchropather.toolkit.graphics;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import synchropather.constants.DriveConstants;
-import synchropather.systems.Movement;
-import synchropather.systems.MovementSequence;
+import synchropather.systems.__util__.superclasses.Movement;
+import synchropather.systems.__util__.superclasses.MovementSequence;
 import synchropather.systems.drive.PoseState;
 
 /**

@@ -1,4 +1,4 @@
-package synchropather.graphics;
+package synchropather.toolkit.graphics;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

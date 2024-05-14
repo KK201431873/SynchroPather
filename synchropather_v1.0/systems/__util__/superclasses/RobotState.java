@@ -1,10 +1,12 @@
-package synchropather.systems;
+package synchropather.systems.__util__.superclasses;
+
+import synchropather.systems.MovementType;
 
 /**
  * Object containing variables representing the state of an independent subsystem on the Robot.
  */
 public abstract class RobotState {
-	
+
 	/**
 	 * @return a String containing the variables of this RobotState.
 	 */

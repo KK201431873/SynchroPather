@@ -1,6 +1,7 @@
 package synchropather.systems.translation;
 
-import synchropather.systems.RobotState;
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * Object containing a Cartesian coordinate pair representing the global translation of the robot on the field.
@@ -17,7 +18,7 @@ public class TranslationState extends RobotState {
 	 * @param polar set to true for polar coordinates, false for Cartesian coordinates
 	 */
 	public TranslationState(double r, double theta, boolean polar) {
-	    if (polar) {
+		if (polar) {
 			this.x = r * Math.cos(theta);
 			this.y = r * Math.sin(theta);
 	    } else {
@@ -32,7 +33,7 @@ public class TranslationState extends RobotState {
 	 * @param y inches
 	 */
 	public TranslationState(double x, double y) {
-	    this.x = x;
+		this.x = x;
 	    this.y = y;
 	}
 	

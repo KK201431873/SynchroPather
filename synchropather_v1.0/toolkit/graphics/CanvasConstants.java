@@ -1,4 +1,4 @@
-package synchropather.graphics;
+package synchropather.toolkit.graphics;
 
 
 public class CanvasConstants {

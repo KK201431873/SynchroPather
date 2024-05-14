@@ -1,44 +1,44 @@
-package synchropather.graphics;
+package synchropather.toolkit.graphics;
 
 import synchropather.MovementSequence;
 import synchropather.MovementSequenceBuilder;
-import synchropather.systems.drive.CRSpline;
 import synchropather.systems.drive.CRSplineBuilder;
 import synchropather.systems.drive.PoseState;
+import synchropather.systems.translation.CRSplineTranslation;
 
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 
 		// define all the splines using waypoints
-        CRSpline spline1 = new CRSplineBuilder(-40.75,63.5,-90)
+        CRSplineTranslation spline1 = new CRSplineTranslation(-40.75,63.5,-90)
 				.addPose(-40.75,38,90)
 				.addPose(43,36,0)
 				.build();
 
-        CRSpline spline2 = new CRSplineBuilder(43,36,0)
+        CRSplineTranslation spline2 = new CRSplineBuilder(43,36,0)
 				.addPose(0,12,-180+1e-6)
 				.addPose(-56,12,-180+1e-6)
 				.build();
 
-        CRSpline spline3 = new CRSplineBuilder(-56,12,-180+1e-6)
+        CRSplineTranslation spline3 = new CRSplineBuilder(-56,12,-180+1e-6)
 				.addPose(12,12,0)
 				.addPose(43,36,0)
 				.build();
 
-        CRSpline spline4 = new CRSplineBuilder(43,36,0)
+        CRSplineTranslation spline4 = new CRSplineBuilder(43,36,0)
 				.addPose(0,12,-180+1e-6)
 				.addPose(-36,12,-180+1e-6)
 				.addPose(-56,24,-180+1e-6)
 				.build();
 
-        CRSpline spline5 = new CRSplineBuilder(-56,24,-180+1e-6)
+        CRSplineTranslation spline5 = new CRSplineBuilder(-56,24,-180+1e-6)
 				.addPose(-36,12,-180+1e-6)
 				.addPose(0,12,-180+1e-6)
 				.addPose(43,36,0)
 				.build();
         
-        CRSpline returnToStart = new CRSplineBuilder(0,0,0)
+        CRSplineTranslation returnToStart = new CRSplineBuilder(0,0,0)
         		.addPose(-36,12, -90)
         		.addPose(-40.75,63.5,-90)
         		.build();
@@ -74,6 +74,34 @@ public class Main {
 			generateTelemetry(visualizer1, timeFactor);
 			Thread.sleep(16);
 		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 	}
 	

@@ -1,53 +1,32 @@
 package synchropather.systems.translation;
 
 import synchropather.DriveConstants;
-import synchropather.systems.Movement;
-import synchropather.systems.StretchedDisplacementCalculator;
-import synchropather.systems.TimeSpan;
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.TimeSpan;
+import synchropather.systems.__util__.calculators.StretchedDisplacementCalculator;
+import synchropather.systems.__util__.superclasses.Movement;
 
 /**
  * Movement for planning a linear translation.
  */
 public class LinearTranslation extends Movement {
 	
-	private double distance, duration, minDuration;
+	private double distance, minDuration;
 	private TranslationState start, end;
-	private TimeSpan timeSpan;
 	private StretchedDisplacementCalculator calculator;
 	
 	
 	/**
-	 * Creates a new LinearTranslation object with a given start and end TranslationState alloted for the given TimeSpan.
+	 * Creates a new LinearTranslation object with a given start and end TranslationState allotted for the given TimeSpan.
 	 * @param start
 	 * @param end
 	 * @param timeSpan
 	 */
-	public LinearTranslation(TranslationState start, TranslationState end, TimeSpan timeSpan) {
-		this.MOVEMENT_TYPE = MovementType.TRANSLATION;
+	public LinearTranslation(TimeSpan timeSpan, TranslationState start, TranslationState end) {
+		super(timeSpan, MovementType.TRANSLATION);
 		this.start = start;
 		this.end = end;
-		this.timeSpan = timeSpan;
 		init();
-	}
-
-	@Override
-	public double getStartTime() {
-		return timeSpan.getStartTime();
-	}
-
-	@Override
-	public double getEndTime() {
-		return timeSpan.getEndTime();
-	}
-
-	@Override
-	public double getMinDuration() {
-		return minDuration;
-	}
-
-	@Override
-	public double getDuration() {
-		return duration;
 	}
 
 	/**
@@ -75,9 +54,14 @@ public class LinearTranslation extends Movement {
 		// scaled velocity vector
 		return new TranslationState(speed, theta, true);
 	}
+	
+	@Override
+	public double getMinDuration() {
+		return minDuration;
+	}
 
 	/**
-	 * @return the TranslationState of this Movement at time zero.
+	 * @return the TranslationState of this Movement at the start time.
 	 */
 	@Override
 	public TranslationState getStartState() {
@@ -85,7 +69,7 @@ public class LinearTranslation extends Movement {
 	}
 
 	/**
-	 * @return the TranslationState reached by the end of this Movement.
+	 * @return the TranslationState of this Movement at the end time.
 	 */
 	@Override
 	public TranslationState getEndState() {
@@ -110,11 +94,9 @@ public class LinearTranslation extends Movement {
 		double MA = DriveConstants.MAX_ACCELERATION;
 		
 		// create calculator object
-		calculator = new StretchedDisplacementCalculator(distance, timeSpan.getDuration(), MV, MA);
+		calculator = new StretchedDisplacementCalculator(distance, timeSpan, MV, MA);
 		
-		duration = calculator.getDuration();
 		minDuration = calculator.getMinDuration();
-		
 	}
 
 }

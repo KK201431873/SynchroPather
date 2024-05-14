@@ -1,4 +1,4 @@
-package synchropather.systems;
+package synchropather.systems.__util__;
 
 /**
  * An Object that stores the duration, start, and end timestamps for a Movement.
@@ -6,7 +6,6 @@ package synchropather.systems;
 public class TimeSpan {
 	
 	private final double startTime, endTime, duration;
-	
 	
 	/**
 	 * Creates a new TimeSpan object with the given start and end timestamps.

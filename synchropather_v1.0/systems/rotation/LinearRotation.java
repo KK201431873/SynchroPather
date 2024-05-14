@@ -1,53 +1,35 @@
 package synchropather.systems.rotation;
 
 import synchropather.DriveConstants;
-import synchropather.systems.Movement;
-import synchropather.systems.StretchedDisplacementCalculator;
-import synchropather.systems.TimeSpan;
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.TimeSpan;
+import synchropather.systems.__util__.calculators.StretchedDisplacementCalculator;
+import synchropather.systems.__util__.superclasses.Movement;
 
 /**
  * Movement for planning a linear rotation.
  */
 public class LinearRotation extends Movement {
 	
-	private double distance, duration, minDuration;
+	private double distance, minDuration;
 	private RotationState start, end;
-	private TimeSpan timeSpan;
 	private StretchedDisplacementCalculator calculator;
-	
 
 	/**
-	 * Creates a new LinearRotation object with a given start and end RotationState alloted for the given TimeSpan.
+	 * Creates a new LinearRotation object with a given start and end RotationState allotted for the given TimeSpan.
 	 * @param start
 	 * @param end
 	 * @param timeSpan
 	 */
 	public LinearRotation(RotationState start, RotationState end, TimeSpan timeSpan) {
-		this.MOVEMENT_TYPE = MovementType.ROTATION;
+		super(timeSpan, MovementType.ROTATION);
 		this.start = start;
 		this.end = end;
-		this.timeSpan = timeSpan;
 		init();
 	}
-
-	@Override
-	public double getStartTime() {
-		return timeSpan.getStartTime();
-	}
-
-	@Override
-	public double getEndTime() {
-		return timeSpan.getEndTime();
-	}
-
 	@Override
 	public double getMinDuration() {
 		return minDuration;
-	}
-
-	@Override
-	public double getDuration() {
-		return duration;
 	}
 
 	/**
@@ -77,7 +59,7 @@ public class LinearRotation extends Movement {
 	}
 
 	/**
-	 * @return the RotationState of this Movement at time zero.
+	 * @return the RotationState of this Movement at the start time.
 	 */
 	@Override
 	public RotationState getStartState() {
@@ -85,7 +67,7 @@ public class LinearRotation extends Movement {
 	}
 
 	/**
-	 * @return the RotationState reached by the end of this Movement.
+	 * @return the RotationState of this Movement at the end time.
 	 */
 	@Override
 	public RotationState getEndState() {
@@ -110,11 +92,9 @@ public class LinearRotation extends Movement {
 		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
 		
 		// create calculator object
-		calculator = new StretchedDisplacementCalculator(distance, timeSpan.getDuration(), MAV, MAA);
+		calculator = new StretchedDisplacementCalculator(distance, timeSpan, MAV, MAA);
 		
-		duration = calculator.getDuration();
 		minDuration = calculator.getMinDuration();
-		
 	}
 
 }

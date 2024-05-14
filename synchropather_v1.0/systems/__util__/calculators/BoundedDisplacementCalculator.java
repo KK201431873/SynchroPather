@@ -1,21 +1,21 @@
-package synchropather.systems;
+package synchropather.systems.__util__.calculators;
 
 /**
- * Object that calculates position based on elapsed time from a velocity curve defined by displacement, time and adjusted max velocity, and max acceleration.
+ * Object that calculates position based on elapsed time from a velocity curve defined by displacement, time, max velocity, and max acceleration.
  */
-public class StretchedDisplacementCalculator extends DisplacementCalculator{
+public class BoundedDisplacementCalculator extends DisplacementCalculator {
 
-	private double distance, minDuration, duration, sign;
+	private double distance, duration, sign;
 	private double MV, MA;
 
 	/**
-	 * Creates a new StretchedDisplacementCalculator with a given target, duration, and kinematic constraints.
+	 * Creates a new BoundedDisplacementCalculator with a given target, duration, and kinematic constraints.
 	 * @param targetDisplacement
 	 * @param targetDuration
 	 * @param MV
 	 * @param MA
 	 */
-	public StretchedDisplacementCalculator(double targetDisplacement, double targetDuration, double MV, double MA) {
+	public BoundedDisplacementCalculator(double targetDisplacement, double targetDuration, double MV, double MA) {
 		super(targetDisplacement, MV, MA);
 		this.duration = targetDuration;
 		init();
@@ -38,42 +38,8 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator{
 	/**
 	 * @return the minimum time needed to reach the target displacement value.
 	 */
-	public double getMinDuration() {
-		return minDuration;
-	}
-
-	/**
-	 * @return the user-set time needed to reach the target displacement value.
-	 */
 	public double getDuration() {
 		return duration;
-	}
-
-	/**
-	 * Sets a new duration and finds max velocity accordingly.
-	 */
-	public void setDuration(double newDuration) {
-		duration = newDuration;
-		
-		/// catch error for when time < min_time
-		if (duration < minDuration) {
-			throw new RuntimeException(
-					String.format("TimeSpan duration %s is less than the minimum needed time %s.", 
-							duration,
-							minDuration
-					)
-			);
-		}
-
-		/// calculate MV
-		// we now know that time >= min_time, so we might need to stretch the graph
-		// we use quadratic formula to find MV (minus root)
-		double a, b, c;
-		a = 1/MA;
-		b = -duration;
-		c = distance;
-		MV = (-b - Math.sqrt(b*b - 4*a*c))/(2*a);
-		
 	}
 
 	/**
@@ -141,23 +107,36 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator{
 	}
 
 	/**
-	 * Calculates min time and max velocity.
+	 * Calculates max distance, min time, and max velocity.
 	 */
 	public void init() {
 		
-		/// calculate min_time
-		// time is the given duration
-		// min_time is the minimum needed time
-		double d_a = 0.5 * MV*MV / MA;
-		if (distance / 2 <= d_a) {
+		double T = duration;
+		double t_a = MV/MA;
+		double D_max;
+		
+		if (T < 2*t_a) {
 			// triangle graph
-			minDuration = 2*Math.sqrt(distance/MA);
-		} else {
+			D_max = MA * T * T / 4.0;
+		} 
+		else {
 			// trapezoid graph
-			minDuration = distance/MV + MV/MA;
+			D_max = (T - MV/MA) * MV;
 		}
 		
-		setDuration(duration);
+		if (distance >= D_max) {
+			// no need to compensate MV
+			distance = D_max;
+		}
+
+		// trim time
+		double previousMV = MV;
+		MV = Math.min(MV, Math.sqrt(distance*MA));
+		
+		if (Math.abs(MV-previousMV)<1e-3)
+			duration = distance/MV + t_a;
+		else
+			duration = Math.sqrt(4*distance/MA);
 		
 	}
 
