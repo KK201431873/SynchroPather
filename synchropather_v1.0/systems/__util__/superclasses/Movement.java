@@ -28,6 +28,14 @@ public abstract class Movement {
 		this.timeSpan = timeSpan;
 	}
 
+	/**
+	 * Creates a new Movement with the given MovementType.
+	 * @param movementType
+	 */
+	protected Movement(MovementType movementType) {
+		this.movementType = movementType;
+	}
+
 
 	/**
 	 * @return the timestamp for when this Movement starts.
@@ -56,6 +64,13 @@ public abstract class Movement {
 	}
 
 	/**
+	 * Sets the allotted timeSpan of this Movement to the given timeSpan.
+	 */
+	public void setTimeSpan(TimeSpan timeSpan) {
+		this.timeSpan = timeSpan;
+	}
+
+	/**
 	 * Returns the robot's desired RobotState in this Movement at the given elapsed time.
 	 * @param elapsedTime
 	 * @return the indicated RobotState.
@@ -68,17 +83,17 @@ public abstract class Movement {
 	 * @return the indicated velocity RobotState.
 	 */
 	public abstract RobotState getVelocity(double elapsedTime);
-	
+
 	/**
 	 * @return the RobotState of this Movement at time zero.
 	 */
 	public abstract RobotState getStartState();
-	
+
 	/**
 	 * @return the RobotState reached by the end of this Movement.
 	 */
 	public abstract RobotState getEndState();
-	
+
 	/**
 	 * @return a String representing the class name of this Movement.
 	 */

@@ -17,16 +17,31 @@ public class LinearRotation extends Movement {
 
 	/**
 	 * Creates a new LinearRotation object with a given start and end RotationState allotted for the given TimeSpan.
+	 * @param timeSpan
 	 * @param start
 	 * @param end
-	 * @param timeSpan
 	 */
-	public LinearRotation(RotationState start, RotationState end, TimeSpan timeSpan) {
+	public LinearRotation(TimeSpan timeSpan, RotationState start, RotationState end) {
 		super(timeSpan, MovementType.ROTATION);
 		this.start = start;
 		this.end = end;
-		init();
+		init(false, -1);
 	}
+
+	/**
+	 * Creates a new LinearRotation object with a given start and end RotationState at the given startTime.
+	 * @param startTime
+	 * @param start
+	 * @param end
+	 */
+	public LinearRotation(double startTime, RotationState start, RotationState end) {
+		super(MovementType.ROTATION);
+		this.start = start;
+		this.end = end;
+		init(true, startTime);
+	}
+
+
 	@Override
 	public double getMinDuration() {
 		return minDuration;
@@ -85,11 +100,16 @@ public class LinearRotation extends Movement {
 	/**
 	 * Calculates total time.
 	 */
-	private void init() {
+	private void init(boolean startTimeConstructor, double startTime) {
 		distance = end.minus(start).abs();
 
 		double MAV = DriveConstants.MAX_ANGULAR_VELOCITY;
 		double MAA = DriveConstants.MAX_ANGULAR_ACCELERATION;
+
+		if (startTimeConstructor) {
+			minDuration = StretchedDisplacementCalculator.findMinDuration(distance, MAV, MAA);
+			timeSpan = new TimeSpan(startTime, startTime + minDuration);
+		}
 		
 		// create calculator object
 		calculator = new StretchedDisplacementCalculator(distance, timeSpan, MAV, MAA);

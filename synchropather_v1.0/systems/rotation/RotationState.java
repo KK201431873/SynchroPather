@@ -7,8 +7,10 @@ import synchropather.systems.__util__.superclasses.RobotState;
  * Object containing a the global heading value of a robot on the field.
  */
 public class RotationState extends RobotState {
-	
-	private final double heading, normalizedHeading;
+
+	public static final RotationState zero = new RotationState(0);
+	private final double heading;
+	private final double normalizedHeading;
 	
 	/**
 	 * Creates a new RotationState object with given heading.

@@ -1,6 +1,8 @@
 package synchropather.systems.__util__;
 
+import synchropather.systems.MovementType;
 import synchropather.systems.__util__.superclasses.Plan;
+import synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * An object that contains other Plans for synchronizing robot subsystems.
@@ -33,6 +35,49 @@ public class Synchronizer {
 		for (Plan plan : plans) {
 			plan.setTarget(elapsedTime);
 		}
+	}
+
+	/**
+	 * Gets the RobotState at the given elapsedTime within the Plan of the given movementType.
+	 * @param movementType
+	 * @param elapsedTime
+	 * @return the indicated RobotState, or null if the Plan does not exist.
+	 */
+	@SuppressWarnings("unchecked")
+	public RobotState getState(MovementType movementType, double elapsedTime) {
+		for (Plan plan : plans) {
+			if (plan.movementType == movementType) {
+				return plan.getState(elapsedTime);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the velocity RobotState at the given elapsedTime within the Plan of the given movementType.
+	 * @param movementType
+	 * @param elapsedTime
+	 * @return the indicated velocity RobotState, or null if the Plan does not exist.
+	 */
+	@SuppressWarnings("unchecked")
+	public RobotState getVelocity(MovementType movementType, double elapsedTime) {
+		for (Plan plan : plans) {
+			if (plan.movementType == movementType) {
+				return plan.getVelocity(elapsedTime);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @return the minimum duration needed to execute all Plans contained within this Synchronizer.
+	 */
+	public double getDuration() {
+		double max = -1;
+		for (Plan plan : plans) {
+			max = Math.max(max, plan.getDuration());
+		}
+		return max;
 	}
 
 }

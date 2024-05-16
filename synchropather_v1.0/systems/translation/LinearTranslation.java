@@ -18,15 +18,28 @@ public class LinearTranslation extends Movement {
 	
 	/**
 	 * Creates a new LinearTranslation object with a given start and end TranslationState allotted for the given TimeSpan.
+	 * @param timeSpan
 	 * @param start
 	 * @param end
-	 * @param timeSpan
 	 */
 	public LinearTranslation(TimeSpan timeSpan, TranslationState start, TranslationState end) {
 		super(timeSpan, MovementType.TRANSLATION);
 		this.start = start;
 		this.end = end;
-		init();
+		init(false, -1);
+	}
+
+	/**
+	 * Creates a new LinearTranslation object with a given start and end TranslationState at the given startTime.
+	 * @param startTime
+	 * @param start
+	 * @param end
+	 */
+	public LinearTranslation(double startTime, TranslationState start, TranslationState end) {
+		super(MovementType.TRANSLATION);
+		this.start = start;
+		this.end = end;
+		init(true, startTime);
 	}
 
 	/**
@@ -87,11 +100,16 @@ public class LinearTranslation extends Movement {
 	/**
 	 * Calculates total time.
 	 */
-	private void init() {
+	private void init(boolean startTimeConstructor, double startTime) {
 		distance = end.minus(start).hypot();
 
 		double MV = DriveConstants.MAX_VELOCITY;
 		double MA = DriveConstants.MAX_ACCELERATION;
+
+		if (startTimeConstructor) {
+			minDuration = StretchedDisplacementCalculator.findMinDuration(distance, MV, MA);
+			timeSpan = new TimeSpan(startTime, startTime + minDuration);
+		}
 		
 		// create calculator object
 		calculator = new StretchedDisplacementCalculator(distance, timeSpan, MV, MA);

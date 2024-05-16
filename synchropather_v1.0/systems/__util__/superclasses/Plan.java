@@ -35,6 +35,7 @@ public abstract class Plan<T extends RobotState> {
 	public Plan(MovementType movementType, Movement... movements) {
 		this.movementType = movementType;
 		this.targetTime = 0;
+		this.movements = new ArrayList<>();
 		
 		// register Movements
 		for (Movement movement : movements) {
@@ -89,17 +90,52 @@ public abstract class Plan<T extends RobotState> {
 	/**
 	 * @return the RobotState at the current targetTime.
 	 */
+	public T getCurrentState() {
+		return getState(targetTime);
+	}
+
+	/**
+	 * Returns the RobotState at the given elapsedTime.
+	 * @param elapsedTime
+	 * @return the indicated RobotState.
+	 */
 	@SuppressWarnings("unchecked")
-	protected T getCurrentState() {
-		if (movements.size() == 0) throw new RuntimeException("Tried to call getCurrentState() with an empty Movements list");
+	public T getState(double elapsedTime) {
+		if (movements.size() == 0) throw new RuntimeException("Tried to call getState() with an empty Movements list");
 
 		// get index of the movement at targetTime
 		int index = 0;
-		while (index+1 < movements.size() && targetTime >= movements.get(index+1).getStartTime()) {
+		while (index+1 < movements.size() && elapsedTime >= movements.get(index+1).getStartTime()) {
 			index++;
 		}
 
-		return (T) movements.get(index).getState(targetTime);
+		return (T) movements.get(index).getState(elapsedTime);
 	}
-	
+
+	/**
+	 * Returns the velocity RobotState at the given elapsedTime.
+	 * @param elapsedTime
+	 * @return the indicated velocity RobotState.
+	 */
+	@SuppressWarnings("unchecked")
+	public T getVelocity(double elapsedTime) {
+		if (movements.size() == 0) throw new RuntimeException("Tried to call getState() with an empty Movements list");
+
+		// get index of the movement at targetTime
+		int index = 0;
+		while (index+1 < movements.size() && elapsedTime >= movements.get(index+1).getStartTime()) {
+			index++;
+		}
+
+		return (T) movements.get(index).getVelocity(elapsedTime);
+	}
+
+	/**
+	 * @return the minimum duration needed to execute all Movements within this Plan
+	 */
+	public double getDuration() {
+		if (movements.size() == 0) return 0;
+		return movements.get(movements.size()-1).getEndTime();
+	}
+
 }

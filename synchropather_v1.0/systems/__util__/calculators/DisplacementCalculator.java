@@ -5,8 +5,8 @@ package synchropather.systems.__util__.calculators;
  */
 public class DisplacementCalculator {
 
-	private double distance, duration, sign;
-	private final double MV, MA;
+	protected double distance, duration, sign;
+	protected double MV, MA;
 	
 	/**
 	 * Creates a new DisplacementCalculator with a given target and kinematic constraints.

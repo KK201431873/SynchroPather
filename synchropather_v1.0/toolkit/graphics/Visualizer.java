@@ -9,22 +9,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import synchropather.constants.DriveConstants;
+import synchropather.systems.MovementType;
+import synchropather.systems.__util__.Synchronizer;
 import synchropather.systems.__util__.superclasses.Movement;
-import synchropather.systems.__util__.superclasses.MovementSequence;
-import synchropather.systems.drive.PoseState;
+import synchropather.systems.rotation.RotationState;
+import synchropather.systems.translation.TranslationState;
 
 /**
  * Object that utilizes Java AWT to visualize a MovementSequence in a pop-up window.
  */
-public class MovementVisualizer {
+public class Visualizer {
 
-	private MovementSequence sequence;
+	private Synchronizer synchronizer;
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
-	private JLabel x, y, h, name, timeLabel;
-	private double time, elapsedTime, lastTime, deltaTime, lookahead;
-	private PoseState currentVelocity, currentPose;
+	private JLabel x, y, h, timeLabel;
+	private double time, elapsedTime, lastTime, deltaTime;
+	private TranslationState translationVelocity, translationState;
+	private RotationState rotationVelocity, rotationState;
 	private Movement currentMovement;
 	private RobotImage robotImage;
 	private MovementSequenceImage splineImage;
@@ -32,47 +34,35 @@ public class MovementVisualizer {
 	private final int fontSize;
 
 	/**
-	 * Creates a new MovementVisualizer object with the given sequence.
-	 * @param sequence
+	 * Creates a new Visualizer object with the given Synchronizer.
+	 * @param synchronizer
 	 */
-	public MovementVisualizer(MovementSequence sequence) {
-		this(sequence, 1, DriveConstants.LOOKAHEAD, 25);
+	public Visualizer(Synchronizer synchronizer) {
+		this(synchronizer, 1, 25);
 	}
 	
 	/**
-	 * Creates a new MovementVisualizer object with the given sequence.
-	 * @param sequence
+	 * Creates a new Visualizer object with the given Synchronizer.
+	 * @param synchronizer
 	 * @param timeFactor between 0 and 1
 	 */
-	public MovementVisualizer(MovementSequence sequence, double timeFactor) {
-		this(sequence, timeFactor, DriveConstants.LOOKAHEAD, 25);
+	public Visualizer(Synchronizer synchronizer, double timeFactor) {
+		this(synchronizer, timeFactor, 25);
 	}
-	
+
 	/**
-	 * Creates a new MovementVisualizer object with the given sequence.
-	 * @param sequence
+	 * Creates a new Visualizer object with the given Synchronizer.
+	 * @param synchronizer
 	 * @param timeFactor between 0 and 1
-	 * @param lookaheadDistance seconds
-	 */
-	public MovementVisualizer(MovementSequence sequence, double timeFactor, double lookaheadDistance) {
-		this(sequence, timeFactor, lookaheadDistance, 25);
-	}
-	
-	/**
-	 * Creates a new MovementVisualizer object with the given sequence.
-	 * @param sequence
-	 * @param timeFactor between 0 and 1
-	 * @param lookaheadDistance seconds
 	 * @param fontSize
 	 */
-	public MovementVisualizer(MovementSequence sequence, double timeFactor, double lookaheadDistance, int fontSize) {
+	public Visualizer(Synchronizer synchronizer, double timeFactor, int fontSize) {
 		this.timeFactor = bound(timeFactor, 0, 1);
-		this.sequence = sequence;
+		this.synchronizer = synchronizer;
 		this.running = false;
 		this.paused = false;
 		this.requestedStop = false;
-		this.time = sequence.getDuration();
-		this.lookahead = lookaheadDistance;
+		this.time = synchronizer.getDuration();
 		this.fontSize = fontSize;
 	}
 	
@@ -84,14 +74,14 @@ public class MovementVisualizer {
 	}
 	
 	/**
-	 * @return the JFrame object of this MovementVisualizer.
+	 * @return the JFrame object of this Visualizer.
 	 */
 	public JFrame getFrame() {
 		return frame;
 	}
 	
 	/**
-	 * Launches the window and begins this MovementVisualizer.
+	 * Launches the window and begins this Visualizer.
 	 */
 	public void start() {
 		if (running) throw new RuntimeException("Simulation is already running!");
@@ -101,13 +91,13 @@ public class MovementVisualizer {
         frame = new JFrame("SynchroPather");
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setIconImage(new ImageIcon("src/sp_graphics/DRIVE.png").getImage());
+        frame.setIconImage(new ImageIcon("synchropather_v1.0/toolkit/graphics/DRIVE.png").getImage());
         
         // creating coordinate box
         JPanel textArea = new JPanel();   
         textArea.setLayout(null);
         textArea.setBackground(new Color(224, 224, 224, 96));  
-        textArea.setBounds(0, 0, 11*fontSize, (int)(5.75*fontSize));
+        textArea.setBounds(0, 0, 11*fontSize, (int)(4.75*fontSize));
         frame.add(textArea);
         
         timeLabel = new JLabel("[-s/-s]");
@@ -119,20 +109,11 @@ public class MovementVisualizer {
         timeLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(timeLabel);
         
-        name = new JLabel("-");
-        name.setVerticalAlignment(JLabel.TOP);
-        name.setHorizontalAlignment(JLabel.LEFT);
-        name.setSize(500, 50);
-        name.setLocation(10, fontSize);
-        name.setForeground(Color.gray);
-        name.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
-        textArea.add(name);
-        
         x = new JLabel("X: -");
         x.setVerticalAlignment(JLabel.TOP);
         x.setHorizontalAlignment(JLabel.LEFT);
         x.setSize(500, 50);
-        x.setLocation(10, 2*fontSize);
+        x.setLocation(10, fontSize);
         x.setForeground(Color.gray);
         x.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(x);
@@ -141,7 +122,7 @@ public class MovementVisualizer {
         y.setVerticalAlignment(JLabel.TOP);
         y.setHorizontalAlignment(JLabel.LEFT);
         y.setSize(500, 50);
-        y.setLocation(10, 3*fontSize);
+        y.setLocation(10, 2*fontSize);
         y.setForeground(Color.gray);
         y.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(y);
@@ -150,13 +131,13 @@ public class MovementVisualizer {
         h.setVerticalAlignment(JLabel.TOP);
         h.setHorizontalAlignment(JLabel.LEFT);
         h.setSize(500, 50);
-        h.setLocation(10, 4*fontSize);
+        h.setLocation(10, 3*fontSize);
         h.setForeground(Color.gray);
         h.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(h);
 
         robotImage = new RobotImage();
-        splineImage = new MovementSequenceImage(sequence);
+        splineImage = new MovementSequenceImage(synchronizer);
         robotImage.setSplineImage(splineImage);
         frame.add(robotImage);
         
@@ -169,7 +150,7 @@ public class MovementVisualizer {
 	}
 	
 	/**
-	 * Handles the next frame of this MovementVisualizer if it is running. Use as the condition for a while loop.
+	 * Handles the next frame of this Visualizer if it is running. Use as the condition for a while loop.
 	 * @return whether or not stop has been requested.
 	 */
 	public boolean loop() {
@@ -192,27 +173,22 @@ public class MovementVisualizer {
 			if (elapsedTime > time)
 				elapsedTime = 0;
 
-			currentVelocity = sequence.getVelocityPose(elapsedTime);
-			currentVelocity = new PoseState(
-					currentVelocity.getX(),
-					currentVelocity.getY(),
-					-currentVelocity.getHeading()
-			);
+			// get velocities
+			translationVelocity = (TranslationState) synchronizer.getVelocity(MovementType.TRANSLATION, elapsedTime);
+			rotationVelocity = (RotationState) synchronizer.getVelocity(MovementType.ROTATION, elapsedTime);
+			rotationVelocity = RotationState.zero.minus(rotationVelocity);
 
-			currentPose = sequence.getPose(elapsedTime);
-			currentMovement = sequence.getMovement(elapsedTime);
-			double lookaheadTime = (elapsedTime + Math.min(time, elapsedTime + lookahead)) / 2d;
-			PoseState lookaheadPose = sequence.getPose(lookaheadTime);
-
+			// get current states
+			translationState = (TranslationState) synchronizer.getState(MovementType.TRANSLATION, elapsedTime);
+			rotationState = (RotationState) synchronizer.getState(MovementType.ROTATION, elapsedTime);
+			
 			DecimalFormat df = new DecimalFormat("0.0");
-			DecimalFormat la = new DecimalFormat("+0.0;-0.0");
 			timeLabel.setText(String.format("[%ss/%ss]", Math.round(elapsedTime*10000)/10000.0, Math.round(time*10000)/10000.0));
-			name.setText(currentMovement.getName());
-			x.setText(String.format("X:%5s  %s", df.format(currentPose.getX()), la.format(lookaheadPose.getX()-currentPose.getX())));
-			y.setText(String.format("Y:%5s  %s", df.format(currentPose.getY()), la.format(lookaheadPose.getY()-currentPose.getY())));
-			h.setText(String.format("H:%6s %s", df.format(currentPose.getHeading()*180/Math.PI), la.format(normalizeAngle(lookaheadPose.getHeading()-currentPose.getHeading())*180/Math.PI)));
+			x.setText(String.format("X:%5s", df.format(translationState.getX())));
+			y.setText(String.format("Y:%5s", df.format(translationState.getY())));
+			h.setText(String.format("H:%6s", df.format(rotationState.getHeading()*180/Math.PI)));
 						
-			robotImage.setPose(currentPose, lookaheadPose, elapsedTime);
+			robotImage.setPose(translationState, rotationState, elapsedTime);
 
 	        frame.repaint();
 	        lastTime = currentTime;
@@ -225,7 +201,7 @@ public class MovementVisualizer {
 	}
 	
 	/**
-	 * Pauses this MovementVisualizer if it is running.
+	 * Pauses this Visualizer if it is running.
 	 */
 	public void pause() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
@@ -235,7 +211,7 @@ public class MovementVisualizer {
 	}
 
 	/**
-	 * Un-pauses this MovementVisualizer if it is running.
+	 * Un-pauses this Visualizer if it is running.
 	 */
 	public void unpause() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
@@ -245,14 +221,14 @@ public class MovementVisualizer {
 	}
 	
 	/**
-	 * Requests this MovementVisualizer to stop and close the JFrame window.
+	 * Requests this Visualizer to stop and close the JFrame window.
 	 */
 	public void stop() {
 		requestedStop = true;
 	}
 	
 	/**
-	 * @return the current elapsed time of this MovementVisualizer if it is running.
+	 * @return the current elapsed time of this Visualizer if it is running.
 	 */
 	public double getElapsedTime() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
@@ -260,7 +236,7 @@ public class MovementVisualizer {
 	}
 	
 	/**
-	 * @return the time since the last time loop() was called if this MovementVisualizer is running.
+	 * @return the time since the last time loop() was called if this Visualizer is running.
 	 */
 	public double getDeltaTime() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
@@ -268,19 +244,35 @@ public class MovementVisualizer {
 	}
 
 	/**
-	 * @return the current pose of this MovementVisualizer if it is running.
+	 * @return the current translationState of this Visualizer if it is running.
 	 */
-	public PoseState getCurrentPose() {
+	public TranslationState getTranslationState() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
-		return currentPose;
+		return translationState;
 	}
 
 	/**
-	 * @return the current velocity pose of this MovementVisualizer if it is running.
+	 * @return the current rotationState of this Visualizer if it is running.
 	 */
-	public PoseState getCurrentVelocity() {
+	public RotationState getRotationState() {
 		if (!running) throw new RuntimeException("Simulation is not running!");
-		return currentVelocity;
+		return rotationState;
+	}
+
+	/**
+	 * @return the current translationVelocity of this Visualizer if it is running.
+	 */
+	public TranslationState getTranslationVelocity() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return translationVelocity;
+	}
+
+	/**
+	 * @return the current rotationVelocity of this Visualizer if it is running.
+	 */
+	public RotationState getRotationVelocity() {
+		if (!running) throw new RuntimeException("Simulation is not running!");
+		return rotationVelocity;
 	}
 
 	/**

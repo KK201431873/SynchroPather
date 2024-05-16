@@ -7,14 +7,13 @@ import synchropather.systems.__util__.TimeSpan;
  */
 public class StretchedDisplacementCalculator extends DisplacementCalculator {
 
-	private double distance, minDuration, sign;
-	private double MV, MA;
+	private double minDuration;
 	private TimeSpan timeSpan;
 
 	/**
-	 * Creates a new StretchedDisplacementCalculator with a given target, duration, and kinematic constraints.
+	 * Creates a new StretchedDisplacementCalculator with a given target, timeSpan, and kinematic constraints.
 	 * @param targetDisplacement
-	 * @param targetDuration
+	 * @param timeSpan
 	 * @param MV
 	 * @param MA
 	 */
@@ -73,13 +72,18 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator {
 		timeSpan = newTimeSpan;
 		
 		/// catch error for when time < min_time
-		if (getDuration() < minDuration) {
+		if (getDuration() - minDuration < -1e-3) {
 			throw new RuntimeException(
 					String.format("TimeSpan duration %s is less than the minimum needed time %s.", 
 							getDuration(),
 							minDuration
 					)
 			);
+		}
+
+		// floating point error correction
+		if (getDuration() < minDuration) {
+			timeSpan = new TimeSpan(getStartTime(), getStartTime() + minDuration);
 		}
 
 		/// calculate MV
@@ -157,25 +161,23 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator {
 		return velocity;
 	}
 
+	public static double findMinDuration(double distance, double MV, double MA) {
+		double d_a = 0.5 * MV*MV / MA;
+		if (distance / 2 <= d_a) {
+			// triangle graph
+			return 2*Math.sqrt(distance/MA);
+		} else {
+			// trapezoid graph
+			return distance/MV + MV/MA;
+		}
+	}
+
 	/**
 	 * Calculates min time and max velocity.
 	 */
 	public void init() {
-		
-		/// calculate min_time
-		// time is the given duration
-		// min_time is the minimum needed time
-		double d_a = 0.5 * MV*MV / MA;
-		if (distance / 2 <= d_a) {
-			// triangle graph
-			minDuration = 2*Math.sqrt(distance/MA);
-		} else {
-			// trapezoid graph
-			minDuration = distance/MV + MV/MA;
-		}
-		
+		minDuration = findMinDuration(distance, MV, MA);
 		setTimeSpan(timeSpan);
-		
 	}
 
 	/**

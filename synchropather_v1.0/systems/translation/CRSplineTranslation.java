@@ -16,16 +16,28 @@ public class CRSplineTranslation extends Movement {
 	private final TranslationState[] anchors;
 	private StretchedDisplacementCalculator calculator;
 
-	
 	/**
 	 * Creates a new CRSplineTranslation object with the given anchor TranslationStates allotted for the given TimeSpan.
 	 * @param timeSpan
+	 * @param anchors
 	 */
 	public CRSplineTranslation(TimeSpan timeSpan, TranslationState... anchors) {
 		super(timeSpan, MovementType.TRANSLATION);
 		this.anchors = anchors;
-		init();
+		init(false, -1);
 	}
+
+	/**
+	 * Creates a new CRSplineTranslation object with the given anchor TranslationStates at the given startTime.
+	 * @param startTime
+	 */
+	public CRSplineTranslation(double startTime, TranslationState... anchors) {
+		super(MovementType.TRANSLATION);
+		this.anchors = anchors;
+		init(true, startTime);
+	}
+
+
 	@Override
 	public double getMinDuration() {
 		return minDuration;
@@ -190,40 +202,45 @@ public class CRSplineTranslation extends Movement {
 	/**
 	 * Calculates total distance and total time.
 	 */
-	private void init() {
+	private void init(boolean startTimeConstructor, double startTime) {
 
 		double[] lengths = new double[Math.max(0, getLength() - 1)];
 
 		// calculate distance
 		distance = 0;
 		double delta_t = DriveConstants.delta_t;
-		double x = anchors[0].getX();
-		double y = anchors[0].getY();
+		TranslationState prevState = anchors[0];
 		for (int i = 0; i < getLength()-1; i++) {
 			double length = 0;
 			for (double t = 0; t <= 1; t += delta_t) {
 				// integrate distances over time
-				TranslationState currentPose = getState(i, t);
-				double deltaDistance = Math.hypot(currentPose.getX()-x, currentPose.getY()-y);
+				TranslationState state = getState(i, t);
+				double deltaDistance = state.minus(prevState).hypot();
 				distance += deltaDistance;
 				length += deltaDistance;
-				x = currentPose.getX();
-				y = currentPose.getY();
+				prevState = state;
 			}
 			lengths[i] = length;
 		}
 
+		double MV = DriveConstants.MAX_VELOCITY;
+		double MA = DriveConstants.MAX_ACCELERATION;
+
+		if (startTimeConstructor) {
+			minDuration = StretchedDisplacementCalculator.findMinDuration(distance, MV, MA);
+			timeSpan = new TimeSpan(startTime, startTime + minDuration);
+		}
+
 		// create calculator object
-		calculator = new StretchedDisplacementCalculator(distance, timeSpan, DriveConstants.MAX_VELOCITY, DriveConstants.MAX_ACCELERATION);
+		calculator = new StretchedDisplacementCalculator(distance, timeSpan, MV, MA);
 
 		minDuration = calculator.getMinDuration();
-
 		
-		// calculate props, time
+		// calculate partial props
 		double partialLength = 0;
 		partialProps = new double[Math.max(0, getLength()-1)];
 		for (int i = 0; i < lengths.length; i++) {
-			// calculate proportions
+			// cumulative proportion of distance travelled at each anchor
 			partialProps[i] = partialLength / distance;
 			partialLength += lengths[i];
 		}

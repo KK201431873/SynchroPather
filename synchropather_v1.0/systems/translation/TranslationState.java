@@ -7,7 +7,8 @@ import synchropather.systems.__util__.superclasses.RobotState;
  * Object containing a Cartesian coordinate pair representing the global translation of the robot on the field.
  */
 public class TranslationState extends RobotState {
-	
+
+	public static final TranslationState zero = new TranslationState(0,0);
 	private final double x;
 	private final double y;
 	
@@ -52,12 +53,25 @@ public class TranslationState extends RobotState {
 	}
 
 	/**
+	 * Returns whether or not the coordinates of this TranslationState equals those of the given.
+	 * @param other
+	 * @return true if the coordinates are equal.
+	 */
+	public boolean equals(TranslationState other) {
+		return getX() == other.getX() &&
+				getY() == other.getY();
+	}
+
+	/**
 	 * @return the hypotenuse length sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>).
 	 */
 	public double hypot() {
 		return Math.hypot(x, y);
 	}
-	
+
+	/**
+	 * @return the angle that the line segment connecting this TranslationPose to the origin makes with the positive x axis.
+	 */
 	public double theta() {
 		return Math.atan2(y, x);
 	}

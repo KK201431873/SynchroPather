@@ -13,12 +13,13 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
-import synchropather.systems.drive.PoseState;
+import synchropather.systems.rotation.RotationState;
+import synchropather.systems.translation.TranslationState;
 
 @SuppressWarnings("serial")
 public class RobotImage extends JComponent {
 	
-	public double x, y, heading, lx, ly, lheading;
+	public double x, y, heading;
 	private MovementSequenceImage movementSequenceImage;
 	private static double[] WORLD_ORIGIN = CanvasConstants.WORLD_ORIGIN;
 	private static double PIXEL_PER_INCH = CanvasConstants.PIXEL_PER_INCH;
@@ -28,23 +29,17 @@ public class RobotImage extends JComponent {
 		x = 0;
 		y = 0;
 		heading = 0;
-		lx = 0;
-		ly = 0;
-		lheading = 0;
 	}
 	
 	public void setSplineImage(MovementSequenceImage movementSequenceImage) {
 		this.movementSequenceImage = movementSequenceImage;
 	}
 	
-	public void setPose(PoseState pose, PoseState lookaheadPose, double elapsedTime) {
-		this.x = pose.getX();
-		this.y = pose.getY();
-		this.heading = pose.getHeading();
+	public void setPose(TranslationState translationState, RotationState rotationState, double elapsedTime) {
+		this.x = translationState.getX();
+		this.y = translationState.getY();
+		this.heading = rotationState.getHeading();
 		movementSequenceImage.setElapsedTime(elapsedTime);
-		this.lx = lookaheadPose.getX();
-		this.ly = lookaheadPose.getY();
-		this.lheading = lookaheadPose.getHeading();
 	}
 	
 	public void setX(double x) {
@@ -58,18 +53,6 @@ public class RobotImage extends JComponent {
 	public void setHeading(double heading) {
 		this.heading = heading;
 	}
-	
-	public void setLX(double lx) {
-		this.lx = lx;
-	}
-	
-	public void setLY(double ly) {
-		this.ly = ly;
-	}
-	
-	public void setLHeading(double lheading) {
-		this.lheading = lheading;
-	}
 		  
     public void paint(Graphics g)
     {
@@ -77,7 +60,7 @@ public class RobotImage extends JComponent {
 
         BufferedImage bg = null;
 		try {
-			bg = ImageIO.read(new File("src/sp_graphics/centerstage_field.png"));
+			bg = ImageIO.read(new File("synchropather_v1.0/toolkit/graphics/centerstage_field.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -88,12 +71,6 @@ public class RobotImage extends JComponent {
         movementSequenceImage.paint(g);
 
         drawRobotAt(g2, x, y, heading, new Color(68, 142, 228), 1);
-        drawRobotAt(g2, lx, ly, lheading, new Color(228, 142, 68), 1/3d);
-
-        Line2D connectingLine = new Line2D.Double(x*PIXEL_PER_INCH + WORLD_ORIGIN[0], -y*PIXEL_PER_INCH + WORLD_ORIGIN[1], lx * PIXEL_PER_INCH + WORLD_ORIGIN[0], -ly*PIXEL_PER_INCH + WORLD_ORIGIN[1]);
-		g2.setColor(new Color(255, 0, 0, 255));
-        g2.setStroke(new BasicStroke(5));
-        g2.draw(connectingLine);
         
     }
     
