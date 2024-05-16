@@ -89,12 +89,14 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator {
 		/// calculate MV
 		// we now know that time >= min_time, so we might need to stretch the graph
 		// we use quadratic formula to find MV (minus root)
-		double a, b, c;
+		double a, b, c, discriminant;
 		a = 1/MA;
 		b = -getDuration();
 		c = distance;
-		MV = (-b - Math.sqrt(b*b - 4*a*c))/(2*a);
-		
+		// clip to prevent floating point error and ensure d >= 0
+		discriminant = Math.max(0, b*b - 4*a*c);
+		MV = (-b - Math.sqrt(discriminant))/(2*a);
+
 	}
 
 	/**
@@ -123,7 +125,7 @@ public class StretchedDisplacementCalculator extends DisplacementCalculator {
 			else
 				displacement = D - 0.5*(t_n + Math.max(0, t_n - t_a))* Math.min(MV, MA*t_n);
 		}
-		
+
 		displacement *= sign;
 		
 		return displacement;

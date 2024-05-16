@@ -113,7 +113,7 @@ public class Main {
 		// rotation Plan
 		LinearRotation rot1 = new LinearRotation(0,
 				new RotationState(0),
-				new RotationState(6969)
+				new RotationState(Math.toRadians(360))
 		);
 
 		RotationPlan rotationPlan = new RotationPlan(
@@ -138,7 +138,7 @@ public class Main {
 		// main visualizer loop with an example telemetry function
 		while (visualizer.loop()) {
 //			generateTelemetry(visualizer, timeFactor);
-			Thread.sleep(50);
+			Thread.sleep(16);
 		}
 
 	}

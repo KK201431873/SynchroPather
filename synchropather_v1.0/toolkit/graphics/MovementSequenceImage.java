@@ -36,6 +36,8 @@ public class MovementSequenceImage extends JComponent {
 		  
     public void paint(Graphics g)
     {
+		double startOfFrame = System.currentTimeMillis();
+
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(5));
 
@@ -45,7 +47,7 @@ public class MovementSequenceImage extends JComponent {
 		yPoly.add((int)(-prev.getY() * PIXEL_PER_INCH + WORLD_ORIGIN[1]));
 
 		double duration = synchronizer.getDuration();
-		double dt = DriveConstants.delta_t;
+		double dt = Math.max(0.05, DriveConstants.delta_t);
 		double prevTheta = 0;
 		for (double elapsedTime = dt; elapsedTime < duration; elapsedTime += dt) {
 			TranslationState current = (TranslationState) synchronizer.getState(MovementType.TRANSLATION, elapsedTime);
@@ -53,15 +55,19 @@ public class MovementSequenceImage extends JComponent {
 			if (elapsedTime!=dt) {
 				currentTheta = current.minus(prev).theta();
 			}
-			if (!(current.equals(prev) || elapsedTime==dt || Math.abs(currentTheta-prevTheta) < 1e-2)) {
-				xPoly.add((int)(current.getX() * PIXEL_PER_INCH + WORLD_ORIGIN[0]));
-				yPoly.add((int)(-current.getY() * PIXEL_PER_INCH + WORLD_ORIGIN[1]));
+			if (!(current.equals(prev) || elapsedTime==dt || Math.abs(currentTheta-prevTheta) < 1e-2) || elapsedTime+dt > duration) {
+				xPoly.add((int) Math.round(current.getX() * PIXEL_PER_INCH + WORLD_ORIGIN[0]));
+				yPoly.add((int) Math.round(-current.getY() * PIXEL_PER_INCH + WORLD_ORIGIN[1]));
 			}
 			prev = current;
 			prevTheta = currentTheta;
 		}
 
-		System.out.println(xPoly.size());
+		// close the polygon
+		for (int i = xPoly.size()-2; i >= 0; i--) {
+			xPoly.add(xPoly.get(i));
+			yPoly.add(yPoly.get(i));
+		}
 
 		// draw polygon
 		Polygon poly = new Polygon(xPoly.stream().mapToInt(i -> i).toArray(), yPoly.stream().mapToInt(i -> i).toArray(), xPoly.size());
@@ -71,17 +77,6 @@ public class MovementSequenceImage extends JComponent {
 		g2.setStroke(new BasicStroke(5));
 		g2.setColor(new Color(34, 187, 14, 32));
 		g2.drawPolygon(poly);
-
-		/*
-
-		g2.setStroke(new BasicStroke(12));
-		g2.setColor(new Color(34, 187, 14, 100));
-		g2.drawPolygon(poly);
-		g2.setStroke(new BasicStroke(5));
-		g2.setColor(new Color(34, 187, 14, 200));
-		g2.drawPolygon(poly);
-		 */
-
 		
     }
     

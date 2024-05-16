@@ -58,8 +58,8 @@ public class TranslationState extends RobotState {
 	 * @return true if the coordinates are equal.
 	 */
 	public boolean equals(TranslationState other) {
-		return getX() == other.getX() &&
-				getY() == other.getY();
+		return Math.abs(getX() - other.getX()) < 1e-6 &&
+				Math.abs(getY() - other.getY()) < 1e-6;
 	}
 
 	/**

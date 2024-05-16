@@ -23,7 +23,7 @@ public class Visualizer {
 	private Synchronizer synchronizer;
 	private boolean running, paused, requestedStop;
 	private JFrame frame;
-	private JLabel x, y, h, timeLabel;
+	private JLabel x, y, h, timeLabel, fps;
 	private double time, elapsedTime, lastTime, deltaTime;
 	private TranslationState translationVelocity, translationState;
 	private RotationState rotationVelocity, rotationState;
@@ -97,7 +97,7 @@ public class Visualizer {
         JPanel textArea = new JPanel();   
         textArea.setLayout(null);
         textArea.setBackground(new Color(224, 224, 224, 96));  
-        textArea.setBounds(0, 0, 11*fontSize, (int)(4.75*fontSize));
+        textArea.setBounds(0, 0, 11*fontSize, (int)(5.75*fontSize));
         frame.add(textArea);
         
         timeLabel = new JLabel("[-s/-s]");
@@ -126,15 +126,24 @@ public class Visualizer {
         y.setForeground(Color.gray);
         y.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
         textArea.add(y);
-        
-        h = new JLabel("H: -");
-        h.setVerticalAlignment(JLabel.TOP);
-        h.setHorizontalAlignment(JLabel.LEFT);
-        h.setSize(500, 50);
-        h.setLocation(10, 3*fontSize);
-        h.setForeground(Color.gray);
-        h.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
-        textArea.add(h);
+
+		h = new JLabel("H: -");
+		h.setVerticalAlignment(JLabel.TOP);
+		h.setHorizontalAlignment(JLabel.LEFT);
+		h.setSize(500, 50);
+		h.setLocation(10, 3*fontSize);
+		h.setForeground(Color.gray);
+		h.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
+		textArea.add(h);
+
+		fps = new JLabel("- FPS");
+		fps.setVerticalAlignment(JLabel.TOP);
+		fps.setHorizontalAlignment(JLabel.LEFT);
+		fps.setSize(500, 50);
+		fps.setLocation(10, 4*fontSize);
+		fps.setForeground(Color.gray);
+		fps.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
+		textArea.add(fps);
 
         robotImage = new RobotImage();
         splineImage = new MovementSequenceImage(synchronizer);
@@ -187,6 +196,7 @@ public class Visualizer {
 			x.setText(String.format("X:%5s", df.format(translationState.getX())));
 			y.setText(String.format("Y:%5s", df.format(translationState.getY())));
 			h.setText(String.format("H:%6s", df.format(rotationState.getHeading()*180/Math.PI)));
+			fps.setText(String.format("%s FPS", Math.round(1/deltaTime)));
 						
 			robotImage.setPose(translationState, rotationState, elapsedTime);
 

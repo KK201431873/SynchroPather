@@ -39,4 +39,11 @@ public class TimeSpan {
 		return duration;
 	}
 
+	/**
+	 * @return the String representation of this TimeSpan.
+	 */
+	public String toString() {
+		return String.format("[%ss,%ss]", startTime, endTime);
+	}
+
 }
