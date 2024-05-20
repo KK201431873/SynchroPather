@@ -97,7 +97,7 @@ public class Visualizer {
         JPanel textArea = new JPanel();   
         textArea.setLayout(null);
         textArea.setBackground(new Color(224, 224, 224, 96));  
-        textArea.setBounds(0, 0, 11*fontSize, (int)(5.75*fontSize));
+        textArea.setBounds(0, 0, 11*fontSize, (int)(4.75*fontSize));
         frame.add(textArea);
         
         timeLabel = new JLabel("[-s/-s]");
@@ -140,10 +140,10 @@ public class Visualizer {
 		fps.setVerticalAlignment(JLabel.TOP);
 		fps.setHorizontalAlignment(JLabel.LEFT);
 		fps.setSize(500, 50);
-		fps.setLocation(10, 4*fontSize);
+		fps.setLocation(670, 0);
 		fps.setForeground(Color.gray);
 		fps.setFont(new Font(Font.MONOSPACED, Font.BOLD, fontSize));
-		textArea.add(fps);
+		frame.add(fps);
 
         robotImage = new RobotImage();
         splineImage = new MovementSequenceImage(synchronizer);
