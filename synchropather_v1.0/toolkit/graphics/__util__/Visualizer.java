@@ -1,4 +1,4 @@
-package synchropather.toolkit.graphics;
+package synchropather.toolkit.graphics.__util__;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -91,7 +91,7 @@ public class Visualizer {
         frame = new JFrame("SynchroPather");
         frame.setSize(782, 805);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setIconImage(new ImageIcon("synchropather_v1.0/toolkit/graphics/DRIVE.png").getImage());
+        frame.setIconImage(new ImageIcon("synchropather_v1.0/toolkit/graphics/__util__/DRIVE.png").getImage());
         
         // creating coordinate box
         JPanel textArea = new JPanel();   
@@ -100,7 +100,7 @@ public class Visualizer {
         textArea.setBounds(0, 0, 11*fontSize, (int)(4.75*fontSize));
         frame.add(textArea);
         
-        timeLabel = new JLabel("[-s/-s]");
+        timeLabel = new JLabel("-s/-s");
         timeLabel.setVerticalAlignment(JLabel.TOP);
         timeLabel.setHorizontalAlignment(JLabel.LEFT);
         timeLabel.setSize(500, 50);
@@ -153,7 +153,7 @@ public class Visualizer {
         frame.setVisible(true);
         System.out.println("Simulation Started");
 		
-		lastTime = System.currentTimeMillis() / 1000.0;
+		lastTime = System.nanoTime() / 1e9d;
 		deltaTime = 0;
 		
 	}
@@ -176,7 +176,7 @@ public class Visualizer {
 		}
 
 		if (running) {
-			double currentTime = System.currentTimeMillis() / 1000.0;
+			double currentTime = System.nanoTime() / 1e9d;
 			deltaTime = currentTime - lastTime;
 			elapsedTime += deltaTime * timeFactor;
 			if (elapsedTime > time)
@@ -190,9 +190,10 @@ public class Visualizer {
 			// get current states
 			translationState = (TranslationState) synchronizer.getState(MovementType.TRANSLATION, elapsedTime);
 			rotationState = (RotationState) synchronizer.getState(MovementType.ROTATION, elapsedTime);
-			
+
 			DecimalFormat df = new DecimalFormat("0.0");
-			timeLabel.setText(String.format("[%ss/%ss]", Math.round(elapsedTime*10000)/10000.0, Math.round(time*10000)/10000.0));
+			DecimalFormat tl = new DecimalFormat("0.000");
+			timeLabel.setText(String.format("%ss/%ss", tl.format(elapsedTime), tl.format(time)));
 			x.setText(String.format("X:%5s", df.format(translationState.getX())));
 			y.setText(String.format("Y:%5s", df.format(translationState.getY())));
 			h.setText(String.format("H:%6s", df.format(rotationState.getHeading()*180/Math.PI)));

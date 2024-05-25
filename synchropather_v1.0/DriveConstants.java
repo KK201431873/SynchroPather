@@ -13,7 +13,7 @@ public final class DriveConstants {
 	/**
 	 *  Max acceleration of the robot in in/s^2.
 	 */
-	public static final double MAX_ACCELERATION = 108d;
+	public static final double MAX_ACCELERATION = 54d;
 
 	/**
 	 *  Max angular velocity of the robot in rad/s.
@@ -22,7 +22,7 @@ public final class DriveConstants {
 	/**
 	 *  Max angular acceleration of the robot in rad/s^2.
 	 */
-	public static final double MAX_ANGULAR_ACCELERATION = 8;
+	public static final double MAX_ANGULAR_ACCELERATION = 4;
 
 	/**
 	 *  The lookahead distance of the follower program in seconds.

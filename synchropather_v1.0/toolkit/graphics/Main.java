@@ -8,6 +8,7 @@ import synchropather.systems.translation.CRSplineTranslation;
 import synchropather.systems.translation.LinearTranslation;
 import synchropather.systems.translation.TranslationPlan;
 import synchropather.systems.translation.TranslationState;
+import synchropather.toolkit.graphics.__util__.Visualizer;
 
 public class Main {
 
@@ -126,19 +127,19 @@ public class Main {
 				translationPlan,
 				rotationPlan
 		);
-
 		
 		// put the MovementSequence into a visualizer object, with timeFactor between 0 and 1 representing the speed of the visualizer
-		double timeFactor = 1;
+		double timeFactor = 3;
 		Visualizer visualizer = new Visualizer(synchronizer, timeFactor);
 		
 		// start visualizer
 		visualizer.start();
 		
 		// main visualizer loop with an example telemetry function
+		double targetFPS = 144;
 		while (visualizer.loop()) {
 //			generateTelemetry(visualizer, timeFactor);
-			Thread.sleep(16);
+			Thread.sleep((int)(1000/targetFPS));
 		}
 
 	}
@@ -151,7 +152,7 @@ public class Main {
 	
 	
 
-	static double x = -40.75, y = 63.5, h = -90;
+	static double x = -40.75, y = 63.5, h = 0;
 	static double[] maxAccel = {0,0,0}, maxAccelPos = {0,0}, prevVelocity = {0,0,0};
 	
 	private static void generateTelemetry(Visualizer visualizer, double timeFactor) {
