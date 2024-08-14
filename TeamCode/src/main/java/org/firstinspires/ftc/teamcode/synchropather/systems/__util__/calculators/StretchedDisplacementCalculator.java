@@ -1,6 +1,6 @@
-package synchropather.systems.__util__.calculators;
+package org.firstinspires.ftc.teamcode.synchropather.systems.__util__.calculators;
 
-import synchropather.systems.__util__.TimeSpan;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.TimeSpan;
 
 /**
  * Object that calculates position based on elapsed time from a velocity curve defined by displacement, time and adjusted max velocity, and max acceleration.

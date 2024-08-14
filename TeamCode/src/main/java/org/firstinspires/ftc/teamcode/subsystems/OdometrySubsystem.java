@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class OdometrySubsystem extends SubsystemBase {
 
-    protected HolonomicOdometry odometry;
+    protected static HolonomicOdometry odometry;
 
     // The lateral distance between the left and right odometers
     // is called the trackwidth. This is very important for
@@ -32,13 +32,16 @@ public class OdometrySubsystem extends SubsystemBase {
     public static final double TICKS_PER_REV = 4096;
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
-    private Encoder leftOdometer, rightOdometer, centerOdometer;
+    private static Encoder leftOdometer, rightOdometer, centerOdometer;
 
-    private Pose2d lastPose, currentPose, currentVelocity, deltaPose;
-    private double lastTime, currentTime, deltaTime;
-    private final ElapsedTime runtime;
+    private static Pose2d lastPose;
+    private static Pose2d currentPose;
+    private static Pose2d currentVelocity;
+    private static double lastTime;
+    private static double currentTime;
+    private static ElapsedTime runtime;
 
-    private final LinearOpMode opMode;
+    private static LinearOpMode opMode;
 
 
     /**
@@ -64,46 +67,46 @@ public class OdometrySubsystem extends SubsystemBase {
 
         rightOdometer.setDirection(Motor.Direction.REVERSE);
 
-        this.odometry = new HolonomicOdometry(
+        odometry = new HolonomicOdometry(
                 leftOdometer::getDistance,
                 rightOdometer::getDistance,
                 centerOdometer::getDistance,
                 TRACK_WIDTH, CENTER_WHEEL_OFFSET
         );
 
-        this.opMode = opMode;
+        OdometrySubsystem.opMode = opMode;
 
         // init pose and velocity tracking
-        this.currentPose = this.odometry.getPose();
-        this.lastPose = this.currentPose;
-        this.currentVelocity = new Pose2d(0,0,new Rotation2d(0));
+        currentPose = odometry.getPose();
+        lastPose = currentPose;
+        currentVelocity = new Pose2d(0,0,new Rotation2d(0));
 
         // init time tracking
-        this.runtime = new ElapsedTime();
-        this.runtime.reset();
-        this.lastTime = runtime.seconds();
-        this.currentTime = lastTime;
+        runtime = new ElapsedTime();
+        runtime.reset();
+        lastTime = runtime.seconds();
+        currentTime = lastTime;
 
     }
 
     /**
      * @return the left odometer as an Encoder.
      */
-    public Encoder getLeftOdometer() {
+    public static Encoder getLeftOdometer() {
         return leftOdometer;
     }
 
     /**
      * @return the left odometer as an Encoder.
      */
-    public Encoder getRightOdometer() {
+    public static Encoder getRightOdometer() {
         return rightOdometer;
     }
 
     /**
      * @return the left odometer as an Encoder.
      */
-    public Encoder getCenterOdometer() {
+    public static Encoder getCenterOdometer() {
         return centerOdometer;
     }
 
@@ -112,9 +115,8 @@ public class OdometrySubsystem extends SubsystemBase {
      *
      * @return The current pose as a Pose2d object.
      */
-    public Pose2d getPose() {
-        Pose2d pose = new Pose2d(currentPose.getY(), currentPose.getX(), new Rotation2d(currentPose.getHeading()));
-        return pose;
+    public static Pose2d getPose() {
+        return new Pose2d(currentPose.getY(), currentPose.getX(), new Rotation2d(currentPose.getHeading()));
     }
 
     /**
@@ -122,84 +124,41 @@ public class OdometrySubsystem extends SubsystemBase {
      *
      * @return The current velocity as a Pose2d object.
      */
-    public Pose2d getVelocity() {
-        Pose2d velocity = new Pose2d(currentVelocity.getY(), currentVelocity.getX(), new Rotation2d(currentPose.getHeading()));
-        return velocity;
+    public static Pose2d getVelocity() {
+        return new Pose2d(currentVelocity.getY(), currentVelocity.getX(), new Rotation2d(currentPose.getHeading()));
     }
 
     /**
      * Updates the robot's pose using the odometry system.
      * This should be called at the end of every loop to keep the pose estimate up to date.
      */
-    public void update() {
+    public static void update() {
 
         // get current and delta time
         currentTime = runtime.seconds();
-        deltaTime = currentTime - lastTime;
+        double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
         // get current and delta pose
         odometry.updatePose();
         currentPose = odometry.getPose();
-        deltaPose = new Pose2d(
-                currentPose.getX()-lastPose.getX(),
-                currentPose.getY()-lastPose.getY(),
-                new Rotation2d(normalizeAngle(currentPose.getHeading()-lastPose.getHeading()))
+        Pose2d deltaPose = new Pose2d(
+                currentPose.getX() - lastPose.getX(),
+                currentPose.getY() - lastPose.getY(),
+                new Rotation2d(normalizeAngle(currentPose.getHeading() - lastPose.getHeading()))
         );
         lastPose = currentPose;
 
         if (Math.abs(deltaTime) > 1e-6) {
             // calculate velocities
             currentVelocity = new Pose2d(
-                    deltaPose.getX()/deltaTime,
-                    deltaPose.getY()/deltaTime,
-                    new Rotation2d(deltaPose.getHeading()/deltaTime)
+                    deltaPose.getX()/ deltaTime,
+                    deltaPose.getY()/ deltaTime,
+                    new Rotation2d(deltaPose.getHeading()/ deltaTime)
             );
         }
 
     }
-
-    /**
-     * Enhanced update function for accurately updating robot's pose and velocity. Key features include:
-     * - Ensures calculations only proceed with positive time deltas to avoid division by zero.
-     * - Utilizes radians directly for angular measurements.
-     * - Calculates translational and rotational velocities by comparing current and previous poses.
-     * - Time and angle handling.
-     */
-    public void update2() {
-        // Capture the previous timestamp and pose for delta calculations
-        double prevTime = currentTime;
-        Pose2d prevPose = currentPose;
-
-        // Update the current time
-        currentTime = runtime.seconds();
-        // Ensure the odometry system is updated with the latest encoder readings
-        odometry.updatePose();
-        // Fetch the latest pose from the odometry system
-        currentPose = odometry.getPose();
-
-        // Calculate the time elapsed since the last update to determine velocities
-        deltaTime = currentTime - prevTime;
-        if (deltaTime <= 0) {
-            // Prevent calculations for non-positive time intervals
-            return;
-        }
-
-        // Calculate the change in position (delta X, delta Y) and orientation (delta Theta)
-        double deltaX = currentPose.getX() - prevPose.getX();
-        double deltaY = currentPose.getY() - prevPose.getY();
-        // Normalize the angle to ensure proper rotational velocity calculation
-        double deltaTheta = normalizeAngle(currentPose.getRotation().getRadians() - prevPose.getRotation().getRadians());
-
-        // Calculate translational and rotational velocities based on the deltas and elapsed time
-        currentVelocity = new Pose2d(
-                deltaX / deltaTime, deltaY / deltaTime, new Rotation2d(deltaTheta / deltaTime)
-        );
-
-        // Update the lastPose with the currentPose for the next cycle
-        lastPose = currentPose;
-    }
-
 
     /**
      * Automatically updates the pose every cycle.
@@ -215,7 +174,7 @@ public class OdometrySubsystem extends SubsystemBase {
      * @param degrees the given angle in degrees.
      * @return the normalized angle in degrees.
      */
-    private double normalizeAngle(double degrees) {
+    private static double normalizeAngle(double degrees) {
         double angle = degrees;
         while (opMode.opModeIsActive() && angle <= -Math.PI)
             angle += 2*Math.PI;

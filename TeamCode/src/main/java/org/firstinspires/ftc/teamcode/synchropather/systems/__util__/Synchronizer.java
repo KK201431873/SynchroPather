@@ -1,14 +1,17 @@
-package synchropather.systems.__util__;
+package org.firstinspires.ftc.teamcode.synchropather.systems.__util__;
 
-import synchropather.systems.MovementType;
-import synchropather.systems.__util__.superclasses.Plan;
-import synchropather.systems.__util__.superclasses.RobotState;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.synchropather.systems.MovementType;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.Plan;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * An object that contains other Plans for synchronizing robot subsystems.
  */
 public class Synchronizer {
 
+	private ElapsedTime runtime;
 	private Plan[] plans;
 	
 	/**
@@ -17,12 +20,22 @@ public class Synchronizer {
 	 */
 	public Synchronizer(Plan... plans) {
 		this.plans = plans;
+		this.runtime = new ElapsedTime();
+		this.runtime.reset();
 	}
 
 	/**
-	 * Calls the loop() method of all plans contained within this Synchronizer.
+	 * Sets the current runtime to zero seconds.
+	 */
+	public void resetRuntime() {
+		runtime.reset();
+	}
+
+	/**
+	 * Advances the current target elapsedTime and sends control commands to all plans.
 	 */
 	public void loop() {
+		setTarget(runtime.seconds());
 		for (Plan plan : plans) {
 			plan.loop();
 		}

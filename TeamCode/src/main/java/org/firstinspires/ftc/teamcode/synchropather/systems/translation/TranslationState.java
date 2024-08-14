@@ -1,7 +1,6 @@
-package synchropather.systems.translation;
+package org.firstinspires.ftc.teamcode.synchropather.systems.translation;
 
-import synchropather.systems.MovementType;
-import synchropather.systems.__util__.superclasses.RobotState;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * Object containing a Cartesian coordinate pair representing the global translation of the robot on the field.

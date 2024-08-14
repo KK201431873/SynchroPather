@@ -1,7 +1,7 @@
-package synchropather.systems.rotation;
+package org.firstinspires.ftc.teamcode.synchropather.systems.rotation;
 
-import synchropather.systems.MovementType;
-import synchropather.systems.__util__.superclasses.RobotState;
+
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.RobotState;
 
 /**
  * Object containing a the global heading value of a robot on the field.

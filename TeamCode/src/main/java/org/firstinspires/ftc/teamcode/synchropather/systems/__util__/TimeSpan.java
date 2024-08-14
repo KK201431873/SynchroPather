@@ -1,4 +1,4 @@
-package synchropather.systems.__util__;
+package org.firstinspires.ftc.teamcode.synchropather.systems.__util__;
 
 /**
  * An Object that stores the duration, start, and end timestamps for a Movement.

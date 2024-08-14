@@ -1,8 +1,8 @@
-package synchropather.systems.rotation;
+package org.firstinspires.ftc.teamcode.synchropather.systems.rotation;
 
-import synchropather.systems.MovementType;
-import synchropather.systems.__util__.superclasses.Movement;
-import synchropather.systems.__util__.superclasses.Plan;
+import org.firstinspires.ftc.teamcode.synchropather.systems.MovementType;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.Movement;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses.Plan;
 
 /**
  * Object containing a sequence of Movements for rotational drive.

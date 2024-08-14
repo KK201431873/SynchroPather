@@ -1,7 +1,7 @@
-package synchropather.systems.__util__.superclasses;
+package org.firstinspires.ftc.teamcode.synchropather.systems.__util__.superclasses;
 
-import synchropather.systems.MovementType;
-import synchropather.systems.__util__.TimeSpan;
+import org.firstinspires.ftc.teamcode.synchropather.systems.MovementType;
+import org.firstinspires.ftc.teamcode.synchropather.systems.__util__.TimeSpan;
 
 /**
  * Object containing the motion plan of a single Movement with respect to elapsed time.
