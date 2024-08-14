@@ -24,7 +24,8 @@ public class TranslationPlan extends Plan<TranslationState> {
 	public void loop() {
 		// TODO Auto-generated method stub
 		TranslationState state = getCurrentState();
-		
+
+
 	}
 
 }
