@@ -19,19 +19,21 @@ import java.util.concurrent.Future;
 
 public class DriveSubsystem extends SubsystemBase {
 
-    private final MecanumDrive controller;
-    private final AdafruitBNO055IMU imu;
+    private static MecanumDrive controller;
+    private static AdafruitBNO055IMU imu;
 
-    private final LinearOpMode opMode;
+    private static LinearOpMode opMode;
 
     private final Motor leftFront;
     private final Motor rightFront;
     private final Motor leftBack;
     private final Motor rightBack;
 
+
+
     private Telemetry telemetry;
 
-    private double imuResetValue;
+    private static double imuResetValue;
 
     public DriveSubsystem(Motor leftFront, Motor rightFront, Motor leftBack, Motor rightBack, AdafruitBNO055IMU imu, LinearOpMode opMode, Telemetry telemetry) {
         this.rightBack = rightBack;
@@ -73,7 +75,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param forward   How much forward the robot should move (negative values = move backwards).
      * @param turn      How much the robot should turn.
      */
-    public void driveFieldCentric(double right, double forward, double turn) {
+    public static void driveFieldCentric(double right, double forward, double turn) {
         double yaw = getYaw();
         controller.driveFieldCentric(right, forward, turn, yaw);
     }
@@ -125,7 +127,7 @@ public class DriveSubsystem extends SubsystemBase {
         imuResetValue = imu.getAngularOrientation().firstAngle * 180.0 / Math.PI; // degrees
     }
 
-    public double getYaw() {
+    public static double getYaw() {
         return normalizeAngle(imu.getAngularOrientation().firstAngle * 180.0 / Math.PI - imuResetValue);
     }
 
@@ -134,7 +136,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param degrees the given angle in degrees.
      * @return the normalized angle in degrees.
      */
-    private double normalizeAngle(double degrees) {
+    private static double normalizeAngle(double degrees) {
         double angle = degrees;
         while (opMode.opModeIsActive() && angle <= -180)
             angle += 360;
