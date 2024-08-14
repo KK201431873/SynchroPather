@@ -88,7 +88,7 @@ public class OdometryPikachu extends LinearOpMode {
             // CORRECTION TO (0,0) //
             /////////////////////////
 
-            double t = runtime.seconds();
+            double t = runtime.seconds(); // Period: 0 to 52pi
             double pi = Math.PI;
             double scale = 2;
 
